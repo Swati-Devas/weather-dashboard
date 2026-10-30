@@ -1,6 +1,6 @@
 /**
  * Open-Meteo API Service
- * Handles city geocoding search and weather forecast retrieval
+ * Handles city geocoding search, reverse geocoding, and weather forecast retrieval
  */
 
 const GEOCODING_BASE_URL = 'https://geocoding-api.open-meteo.com/v1/search';
@@ -57,6 +57,99 @@ export async function searchCities(cityName, signal) {
     // Re-throw user-friendly message
     throw new Error(err.message || 'Failed to search for city. Please check your internet connection.');
   }
+}
+
+/**
+ * Reverse geocode coordinates to find the nearest city/place name
+ * Uses BigDataCloud client API with fallback to Nominatim (OpenStreetMap)
+ * and graceful fallback to coordinates string if in remote/ocean regions.
+ * @param {number} latitude
+ * @param {number} longitude
+ * @param {AbortSignal} [signal]
+ * @returns {Promise<{ name: string, country: string, admin1: string, latitude: number, longitude: number, timezone: string }>}
+ */
+export async function reverseGeocode(latitude, longitude, signal) {
+  const lat = Number(latitude);
+  const lon = Number(longitude);
+  if (isNaN(lat) || isNaN(lon)) {
+    throw new Error('Invalid coordinates for reverse geocoding.');
+  }
+
+  const defaultLocation = {
+    name: `Location (${lat >= 0 ? lat.toFixed(2) + '°N' : Math.abs(lat).toFixed(2) + '°S'}, ${lon >= 0 ? lon.toFixed(2) + '°E' : Math.abs(lon).toFixed(2) + '°W'})`,
+    country: '',
+    admin1: '',
+    latitude: lat,
+    longitude: lon,
+    timezone: 'auto',
+  };
+
+  // 1. Try BigDataCloud free client reverse geocoding (fast, CORS-enabled, client-friendly)
+  try {
+    const bdcUrl = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`;
+    const res = await fetch(bdcUrl, { signal });
+    if (res.ok) {
+      const data = await res.json();
+      const cityName =
+        data.city ||
+        data.locality ||
+        data.principalSubdivision ||
+        (data.localityInfo && data.localityInfo.administrative && data.localityInfo.administrative[0]?.name);
+      const country = data.countryName || '';
+      const admin1 = data.principalSubdivision || '';
+
+      if (cityName || country) {
+        return {
+          name: cityName || country,
+          country: country,
+          admin1: admin1 !== cityName ? admin1 : '',
+          latitude: lat,
+          longitude: lon,
+          timezone: 'auto',
+        };
+      }
+    }
+  } catch (err) {
+    if (err.name === 'AbortError') throw err;
+  }
+
+  // 2. Fallback to OpenStreetMap Nominatim reverse geocoding
+  try {
+    const osmUrl = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`;
+    const res = await fetch(osmUrl, {
+      signal,
+      headers: { Accept: 'application/json' },
+    });
+    if (res.ok) {
+      const data = await res.json();
+      const addr = data.address || {};
+      const cityName =
+        addr.city ||
+        addr.town ||
+        addr.village ||
+        addr.municipality ||
+        addr.county ||
+        addr.state;
+      const country = addr.country || '';
+      const admin1 = addr.state || addr.region || '';
+
+      if (cityName || country) {
+        return {
+          name: cityName || country,
+          country: country,
+          admin1: admin1 !== cityName ? admin1 : '',
+          latitude: lat,
+          longitude: lon,
+          timezone: 'auto',
+        };
+      }
+    }
+  } catch (err) {
+    if (err.name === 'AbortError') throw err;
+  }
+
+  // 3. Fallback when over uninhabited water or remote regions
+  return defaultLocation;
 }
 
 /**

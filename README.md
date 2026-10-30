@@ -1,48 +1,75 @@
 # 🌤️ SkyPulse — Modern Weather Dashboard
 
-A complete, modern, responsive Weather Dashboard web application built with **React**, **Vite**, **CSS3**, and the **Open-Meteo Live API**. SkyPulse provides real-time atmospheric data, 24-hour hourly projections, and a 7-day extended forecast with a glassmorphism design system supporting light and dark themes.
+A complete, modern, responsive Weather Dashboard web application built with **React 19**, **Vite 8**, **CSS3**, **React Leaflet**, and the **Open-Meteo Live API**. SkyPulse provides three synchronized methods for discovering real-time atmospheric data: global search, one-click device geolocation, and a fully interactive world map with clickable weather exploration.
 
 ---
 
-## ✨ Features
+## 🧭 Three Ways to Discover Weather
 
-- **Live Weather Data**: Real-time atmospheric conditions fetched directly from the Open-Meteo API (no API key required).
-- **Global City Search**: Search for any city or municipality worldwide with autocomplete suggestions, state/country indicators, and instant geocoding.
-- **Geolocation Support**: "Locate Me" button to retrieve weather for your exact device GPS coordinates with a single click.
-- **Popular City Quick Select**: Rapid navigation chips for major international hubs (Bengaluru, London, Tokyo, New York, Paris, Sydney).
+SkyPulse supports three tightly synchronized weather discovery options:
+
+1. **Option 1: City Search 🔍**
+   - Search bar for any municipality, city, or territory worldwide.
+   - Live autocomplete with country and regional indicators via Open-Meteo Geocoding.
+   - Quick navigation chips for popular global hubs (Bengaluru, London, Tokyo, New York, Paris, Sydney).
+   - Moving the search updates the dashboard and automatically pans the map view to the selected city.
+
+2. **Option 2: Locate Me 📍**
+   - One-click HTML5 Geolocation detection for exact device GPS coordinates.
+   - Automatically reverse-geocodes coordinates into a friendly location name.
+   - Renders a distinctive pulsing green radar beacon marker on the interactive world map.
+   - Graceful permission denial, unavailable signal, and timeout notifications.
+
+3. **Option 3: Interactive World Map 🌍 (NEW)**
+   - Powered by **React Leaflet** and **OpenStreetMap**.
+   - Pan, drag, and zoom across all continents and oceans.
+   - **Click anywhere on Earth**:
+     - Captures exact latitude & longitude coordinates.
+     - Performs reverse geocoding to resolve nearest city, island, or region.
+     - Fetches live weather for coordinates via Open-Meteo.
+     - Smoothly flies the map to the clicked location.
+     - Displays a custom animated pin marker with a rich popup showing:
+       - City/Location Name & Country
+       - Current Temperature in °C / °F
+       - Weather Condition badge & dynamic icon
+       - Relative Humidity (%)
+       - Wind Speed (km/h)
+     - Shows an active loading badge while data is being fetched.
+     - Automatically synchronizes with the main dashboard, updating metrics, hourly timeline, and 7-day outlook.
+
+---
+
+## ✨ Full Feature Overview
+
+- **Live Weather API**: Real-time atmospheric conditions fetched directly from Open-Meteo (open-source, no API key required).
 - **Hero Current Weather**:
-  - Selected city, state/region, and country.
+  - City name, region, and country.
   - Large focal temperature in Celsius or Fahrenheit.
-  - Condition badge with status indicator matching WMO weather codes.
-  - High and low temperatures for today.
+  - Dynamic condition badge matching WMO weather interpretation codes.
+  - Today's high and low temperatures.
   - Feels-like (apparent) temperature.
-- **Detailed Weather Metrics**:
-  - **Humidity (%)**: Air moisture level with comfort assessment.
-  - **Wind Speed (km/h)**: Real-time velocity with a rotating compass needle indicator.
+- **6 Detailed Weather Metrics**:
+  - **Humidity (%)**: Moisture level with comfort status.
+  - **Wind Speed (km/h)**: Real-time velocity with a rotating compass indicator.
   - **Feels Like (°C / °F)**: Apparent temperature factoring in humidity and wind chill.
   - **Precipitation (mm)**: Rainfall level in millimeters.
-  - **UV Index**: Daily solar ultraviolet radiation index.
-  - **Atmospheric Pressure (hPa)**: Barometric pressure level.
+  - **UV Index**: Solar ultraviolet radiation index.
+  - **Pressure (hPa)**: Barometric pressure level.
 - **24-Hour Hourly Forecast**:
-  - Horizontal smooth-scrolling timeline with next 24 hours.
-  - Highlighted current hour ("Now").
-  - Weather condition icons and hourly precipitation probabilities.
+  - Horizontally scrollable timeline covering the next 24 hours.
+  - Highlighted current hour ("Now") with rain probabilities and matching icons.
 - **7-Day Extended Forecast**:
-  - Day-by-day temperature breakdown.
-  - Visual relative temperature bar showing where daily min and max fall across the week.
-  - Rain probability badges.
-- **Theme Engine**:
-  - Light mode and Dark mode with glassmorphism cards and ambient lighting.
-  - Respects system preferences (`prefers-color-scheme`) on first visit.
-  - Persisted across sessions via `localStorage`.
-  - Accessible toggle button with ARIA attributes and keyboard navigation.
+  - Daily outlook with relative temperature gauge bars showing where daily high/low lands within the week's range.
+- **Glassmorphism Design System**:
+  - Ambient glowing gradients, frosted glass cards (`backdrop-filter: blur(16px)`).
+  - Light mode and Dark mode with seamless theme adaptation on map tiles.
+  - Respects system preferences (`prefers-color-scheme`) and persists via `localStorage`.
 - **Unit Switching**:
-  - Toggle between Celsius (°C) and Fahrenheit (°F) with instantaneous recalculation.
+  - One-click toggle between Celsius (°C) and Fahrenheit (°F) with immediate recalculation.
 - **Resilient State Handling**:
-  - Shimmering skeleton loaders for smooth first-load and zero layout shift.
-  - Inline error messages with retry actions.
-  - Previous weather state preservation if a new search fails.
-  - Duplicate search prevention and automatic request cancellation via `AbortController`.
+  - Shimmering skeleton loader on initial load with zero layout shift.
+  - Contextual error banners with retry buttons.
+  - Race condition prevention with `AbortController`.
 
 ---
 
@@ -52,27 +79,28 @@ A complete, modern, responsive Weather Dashboard web application built with **Re
 | :--- | :--- |
 | **Framework** | [React 19](https://react.dev/) |
 | **Build Tool & Bundler** | [Vite 8](https://vitejs.dev/) |
+| **Mapping Engine** | [Leaflet](https://leafletjs.com/) & [React Leaflet](https://react-leaflet.js.org/) |
+| **Map Tiles** | [OpenStreetMap](https://www.openstreetmap.org/) |
 | **Language** | Modern JavaScript (ES6+ Modules, Async/Await) |
 | **Styling** | Vanilla CSS3 (Custom Properties, Glassmorphism, Responsive Grid & Flexbox) |
 | **Icons** | [Lucide React](https://lucide.dev/) |
-| **Weather & Geocoding API** | [Open-Meteo](https://open-meteo.com/) (Free, Open-Source, No API Key Needed) |
+| **Weather & Geocoding API** | [Open-Meteo](https://open-meteo.com/) (No API Key Required) |
+| **Reverse Geocoding** | BigDataCloud Client API + OpenStreetMap Nominatim Fallback |
 | **Version Control** | Git & GitHub |
-| **Hosting & Deployment** | [Vercel](https://vercel.com/) |
+| **Deployment** | [Vercel](https://vercel.com/) |
 
 ---
 
 ## 📸 Screenshots
 
-*(To add screenshots to your repository: take a screenshot of your dashboard in light mode and dark mode, save them to an `assets/` or `screenshots/` directory, and link them below.)*
-
 | Light Theme | Dark Theme |
 | :---: | :---: |
 | ![SkyPulse Light Mode](docs/screenshots/light-mode.png) | ![SkyPulse Dark Mode](docs/screenshots/dark-mode.png) |
 
-> **Tip for Capturing Screenshots**:
+> **Capturing Screenshots**:
 > 1. Run `npm run dev` locally.
 > 2. Open `http://localhost:5173` in your browser.
-> 3. Press `F12` (Developer Tools) -> Press `Ctrl+Shift+P` -> Type "Capture full size screenshot".
+> 3. Press `F12` -> Press `Ctrl+Shift+P` -> Type "Capture full size screenshot".
 > 4. Save to `docs/screenshots/` and commit to Git.
 
 ---
@@ -82,7 +110,7 @@ A complete, modern, responsive Weather Dashboard web application built with **Re
 ```text
 Weather_Dashboard/
 ├── public/
-│   ├── favicon.svg          # SkyPulse weather tab icon
+│   ├── favicon.svg              # SkyPulse weather icon
 │   └── icons.svg
 ├── src/
 │   ├── components/
@@ -90,19 +118,20 @@ Weather_Dashboard/
 │   │   ├── ErrorMessage.jsx     # Error banner with retry action
 │   │   ├── Header.jsx           # App title, live clock, unit switch, theme toggle
 │   │   ├── HourlyForecast.jsx   # 24-hour horizontal forecast strip
+│   │   ├── InteractiveMap.jsx   # Option 3: Interactive Leaflet map with custom markers & popups
 │   │   ├── LoadingState.jsx     # Shimmer skeleton loader
-│   │   ├── SearchBar.jsx        # Search input, dropdown results, GPS button, popular chips
+│   │   ├── SearchBar.jsx        # Option 1 & 2: Search input, dropdown results, GPS button, popular chips
 │   │   ├── ThemeToggle.jsx      # Light/dark mode toggle button
 │   │   ├── WeatherIcon.jsx      # WMO-to-Lucide icon renderer
 │   │   ├── WeatherMetrics.jsx   # 6 cards for humidity, wind, feels-like, rain, UV, pressure
 │   │   └── WeeklyForecast.jsx   # 7-day forecast with visual temperature range bar
 │   ├── services/
-│   │   └── weatherApi.js        # Open-Meteo Geocoding & Forecast API client
+│   │   └── weatherApi.js        # Open-Meteo Geocoding, reverse geocoding & forecast client
 │   ├── utils/
 │   │   ├── formatters.js        # Unit converters, dates, times, compass directions
 │   │   └── weatherCodes.js      # WMO WW code mappings & categories
-│   ├── App.jsx                  # Main application state & layout coordinator
-│   ├── index.css                # CSS variables, glassmorphism design system & media queries
+│   ├── App.jsx                  # Main application state & synchronization coordinator
+│   ├── index.css                # Glassmorphism design system, Leaflet map styling & media queries
 │   └── main.jsx                 # React root mount
 ├── .gitignore                   # Excludes node_modules, dist, logs
 ├── index.html                   # HTML entry point with meta tags
@@ -120,12 +149,6 @@ Weather_Dashboard/
 - **Node.js**: v18.0.0 or later (v20+ LTS recommended)
 - **npm**: v9.0.0 or later
 
-Verify your local environment:
-```bash
-node -v
-npm -v
-```
-
 ### Installation
 
 1. Clone or navigate to the project directory:
@@ -133,7 +156,7 @@ npm -v
    cd Weather_Dashboard
    ```
 
-2. Install dependencies:
+2. Install dependencies (including Leaflet and React Leaflet):
    ```bash
    npm install
    ```
@@ -168,84 +191,51 @@ npm run preview
 
 ## 🌐 API Reference
 
-SkyPulse integrates with Open-Meteo's open APIs. No registration or API keys are required.
+SkyPulse integrates with open, free services without API key requirements:
 
-### 1. Geocoding API
-Converts human-entered city names to geographic coordinates (`latitude`, `longitude`, `country`, `timezone`):
+### 1. Geocoding API (City Search)
 ```text
 GET https://geocoding-api.open-meteo.com/v1/search?name={CITY}&count=5&language=en&format=json
 ```
 
-### 2. Weather Forecast API
-Fetches current, hourly (24-hour), and daily (7-day) metrics:
+### 2. Reverse Geocoding (Map Clicks & Geolocation)
+- **Primary**: BigDataCloud Client Reverse Geocode API
+  ```text
+  GET https://api.bigdatacloud.net/data/reverse-geocode-client?latitude={LAT}&longitude={LON}&localityLanguage=en
+  ```
+- **Fallback**: OpenStreetMap Nominatim Reverse Geocode
+  ```text
+  GET https://nominatim.openstreetmap.org/reverse?lat={LAT}&lon={LON}&format=json
+  ```
+
+### 3. Weather Forecast API
 ```text
 GET https://api.open-meteo.com/v1/forecast?latitude={LAT}&longitude={LON}&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,weather_code,wind_speed_10m,wind_direction_10m,surface_pressure,uv_index&hourly=temperature_2m,precipitation_probability,weather_code,relative_humidity_2m&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max,uv_index_max&timezone=auto&forecast_days=7
 ```
 
 ---
 
-## 🐙 Step-by-Step GitHub Setup & Push Commands
+## 🐙 Git & GitHub Push
 
-To initialize a new Git repository and push your project to GitHub:
-
-### 1. Initialize Git and Stage Files
+Commit and push your enhancements:
 ```bash
-git init
 git add .
-git commit -m "feat: complete modern responsive weather dashboard with live API"
-```
-
-### 2. Create a New Repository on GitHub
-1. Go to [GitHub.com/new](https://github.com/new).
-2. Set **Repository name** to `weather-dashboard` (or your preferred name).
-3. Set the repository to **Public**.
-4. Leave "Add a README file", "Add .gitignore", and "Choose a license" **unchecked** (we already have them).
-5. Click **Create repository**.
-
-### 3. Link Remote and Push
-Replace `<YOUR_GITHUB_USERNAME>` with your actual GitHub username:
-```bash
-git branch -M main
-git remote add origin https://github.com/<YOUR_GITHUB_USERNAME>/weather-dashboard.git
-git push -u origin main
+git commit -m "feat: add interactive world map with 3 synchronized weather discovery options"
+git push origin main
 ```
 
 ---
 
-## ⚡ Step-by-Step Vercel Deployment Instructions
+## ⚡ Vercel Deployment
 
-Deploying your Vite React Weather Dashboard to Vercel takes less than 2 minutes:
-
-### Method A: Deploy via Vercel Web Dashboard (Recommended)
-
-1. Log in to [Vercel](https://vercel.com/) (you can sign in with your GitHub account).
-2. Click **Add New...** -> **Project**.
-3. Under **Import Git Repository**, find your `weather-dashboard` repository and click **Import**.
-4. Configure Project Settings:
-   - **Framework Preset**: `Vite` (automatically detected)
-   - **Root Directory**: `./` (default)
+Since the repository is already connected to GitHub:
+1. Pushing commits to `main` automatically triggers a zero-config production deployment on Vercel.
+2. Build Settings:
+   - **Framework Preset**: `Vite`
    - **Build Command**: `npm run build`
    - **Output Directory**: `dist`
    - **Install Command**: `npm install`
-5. Click **Deploy**.
-6. Vercel will build the application in under 30 seconds and provide your live production URL (e.g., `https://weather-dashboard-xyz.vercel.app`).
-
-### Method B: Deploy via Vercel CLI
-
-1. Install Vercel CLI globally:
-   ```bash
-   npm install -g vercel
-   ```
-2. Run deployment:
-   ```bash
-   vercel
-   ```
-3. Follow the on-screen prompts, accept defaults, and deploy to production:
-   ```bash
-   vercel --prod
-   ```
-
-*Note: Because Open-Meteo API is open and supports CORS without requiring secret API keys, no additional environment variables are required on Vercel.*
+3. No secret environment variables are required.
 
 ---
 

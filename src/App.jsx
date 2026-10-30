@@ -7,7 +7,8 @@ import HourlyForecast from './components/HourlyForecast';
 import WeeklyForecast from './components/WeeklyForecast';
 import LoadingState from './components/LoadingState';
 import ErrorMessage from './components/ErrorMessage';
-import { searchCities, fetchWeatherData } from './services/weatherApi';
+import InteractiveMap from './components/InteractiveMap';
+import { searchCities, fetchWeatherData, reverseGeocode } from './services/weatherApi';
 
 const DEFAULT_CITY = {
   name: 'Bengaluru',
@@ -44,12 +45,15 @@ export default function App() {
   const [searchResults, setSearchResults] = useState([]);
   const [searchError, setSearchError] = useState(null);
 
-  // Geolocation state
+  // Geolocation & Map state
   const [isLocating, setIsLocating] = useState(false);
+  const [userLocation, setUserLocation] = useState(null);
+  const [isLoadingMapWeather, setIsLoadingMapWeather] = useState(false);
 
   // Abort controllers to prevent race conditions
   const weatherAbortRef = useRef(null);
   const searchAbortRef = useRef(null);
+  const mapClickAbortRef = useRef(null);
 
   // Apply theme to <html> tag and persist
   useEffect(() => {
@@ -71,7 +75,7 @@ export default function App() {
   };
 
   /**
-   * Fetch weather for a given city
+   * Fetch weather for a given city / location object
    */
   const loadWeatherForCity = useCallback(async (city) => {
     if (!city || city.latitude === undefined || city.longitude === undefined) return;
@@ -112,11 +116,12 @@ export default function App() {
     return () => {
       if (weatherAbortRef.current) weatherAbortRef.current.abort();
       if (searchAbortRef.current) searchAbortRef.current.abort();
+      if (mapClickAbortRef.current) mapClickAbortRef.current.abort();
     };
   }, [loadWeatherForCity]);
 
   /**
-   * Search city via Geocoding API
+   * Option 1: Search city via Geocoding API
    */
   const handleSearch = async (query) => {
     if (!query) return;
@@ -161,7 +166,7 @@ export default function App() {
   };
 
   /**
-   * Geolocation: Locate user with browser GPS API
+   * Option 2: Geolocation: Locate user with browser GPS API
    */
   const handleLocateUser = () => {
     if (!navigator.geolocation) {
@@ -175,17 +180,33 @@ export default function App() {
     navigator.geolocation.getCurrentPosition(
       async (position) => {
         const { latitude, longitude } = position.coords;
-        const userCity = {
-          name: 'Your Current Location',
-          country: '',
-          admin1: `Lat: ${latitude.toFixed(2)}, Lon: ${longitude.toFixed(2)}`,
-          latitude,
-          longitude,
-          timezone: 'auto',
-        };
+        setUserLocation({ latitude, longitude });
 
-        setIsLocating(false);
-        handleSelectCity(userCity);
+        try {
+          // Attempt reverse geocoding to give a friendly place name
+          const resolvedLocation = await reverseGeocode(latitude, longitude);
+          const userCity = {
+            name: resolvedLocation.name || 'Your Location',
+            country: resolvedLocation.country || '',
+            admin1: resolvedLocation.admin1 || `GPS: ${latitude.toFixed(2)}°, ${longitude.toFixed(2)}°`,
+            latitude,
+            longitude,
+            timezone: 'auto',
+          };
+          setIsLocating(false);
+          handleSelectCity(userCity);
+        } catch {
+          const fallbackCity = {
+            name: 'Your Current Location',
+            country: '',
+            admin1: `Lat: ${latitude.toFixed(2)}, Lon: ${longitude.toFixed(2)}`,
+            latitude,
+            longitude,
+            timezone: 'auto',
+          };
+          setIsLocating(false);
+          handleSelectCity(fallbackCity);
+        }
       },
       (error) => {
         setIsLocating(false);
@@ -201,6 +222,41 @@ export default function App() {
       },
       { timeout: 10000, enableHighAccuracy: true }
     );
+  };
+
+  /**
+   * Option 3: Handle click anywhere on the Interactive World Map
+   */
+  const handleMapClick = async (lat, lon) => {
+    if (lat === undefined || lon === undefined) return;
+
+    if (mapClickAbortRef.current) {
+      mapClickAbortRef.current.abort();
+    }
+    const abortController = new AbortController();
+    mapClickAbortRef.current = abortController;
+
+    setIsLoadingMapWeather(true);
+    setWeatherError(null);
+
+    try {
+      // 1. Reverse geocode to identify city or place name
+      const location = await reverseGeocode(lat, lon, abortController.signal);
+
+      // 2. Fetch live weather forecast for clicked coordinates
+      const data = await fetchWeatherData(lat, lon, 'auto', abortController.signal);
+
+      // 3. Update dashboard state
+      setSelectedCity(location);
+      setWeatherData(data);
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        console.error('Map location fetch error:', err);
+        setWeatherError(err.message || 'Unable to fetch weather for selected map location.');
+      }
+    } finally {
+      setIsLoadingMapWeather(false);
+    }
   };
 
   return (
@@ -220,7 +276,7 @@ export default function App() {
           onToggleUnit={toggleUnit}
         />
 
-        {/* Prominent Search Bar with suggestions, GPS button, popular chips */}
+        {/* Option 1 & 2: Search Bar + Locate Me button + Popular chips */}
         <SearchBar
           onSearch={handleSearch}
           onSelectCity={handleSelectCity}
@@ -279,6 +335,17 @@ export default function App() {
               </div>
             </div>
           )}
+
+          {/* Option 3: Interactive World Map Section */}
+          <InteractiveMap
+            selectedCity={selectedCity}
+            weather={weatherData}
+            userLocation={userLocation}
+            onMapClick={handleMapClick}
+            isLoadingLocationWeather={isLoadingMapWeather}
+            tempUnit={tempUnit}
+            theme={theme}
+          />
         </main>
 
         {/* Footer */}
@@ -293,7 +360,16 @@ export default function App() {
             >
               Open-Meteo API
             </a>{' '}
-            • Free & Open Source Weather Service
+            • Maps by{' '}
+            <a
+              href="https://www.openstreetmap.org/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="footer-link"
+            >
+              OpenStreetMap
+            </a>{' '}
+            • Free & Open Source
           </p>
         </footer>
       </div>
