@@ -20,7 +20,7 @@ SkyPulse supports three tightly synchronized weather discovery options:
    - Renders a distinctive pulsing green radar beacon marker on the interactive world map.
    - Graceful permission denial, unavailable signal, and timeout notifications.
 
-3. **Option 3: Interactive World Map 🌍 (NEW)**
+3. **Option 3: Interactive World Map 🌍 **
    - Powered by **React Leaflet** and **OpenStreetMap**.
    - Pan, drag, and zoom across all continents and oceans.
    - **Click anywhere on Earth**:
