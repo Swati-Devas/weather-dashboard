@@ -42,17 +42,18 @@ import {
   formatVisibility,
 } from '../utils/formatters';
 
-// Map layer provider configurations - SkyPulse Dark Theme as primary default
+// Map layer provider configurations - Premium Dark Navy as default
 export const MAP_LAYERS = {
   dark: {
     id: 'dark',
-    name: 'SkyPulse Dark',
-    tag: 'Default Navy',
+    name: 'SkyPulse Dark Navy',
+    tag: 'Premium Theme',
     attribution:
-      '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors',
-    url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-    maxZoom: 19,
-    isDark: true,
+      'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ, TomTom, Intermap, iPC, USGS, METI, NRCAN, GeoBase, Kadaster NL, Ordnance Survey, OpenStreetMap contributors',
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',
+    referenceUrl:
+      'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}',
+    maxZoom: 16,
   },
   standard: {
     id: 'standard',
@@ -62,7 +63,6 @@ export const MAP_LAYERS = {
       '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors',
     url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
     maxZoom: 19,
-    isDark: false,
   },
   satellite: {
     id: 'satellite',
@@ -72,7 +72,6 @@ export const MAP_LAYERS = {
       'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and GIS User Community',
     url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
     maxZoom: 18,
-    isDark: false,
   },
 };
 
@@ -598,12 +597,21 @@ export default function InteractiveMap({
 
           {/* Active Map Base Tile Layer */}
           <TileLayer
-            key={currentLayer.id}
+            key={`${currentLayer.id}-base`}
             attribution={currentLayer.attribution}
             url={currentLayer.url}
-            className={currentLayer.isDark ? 'leaflet-tile-dark' : ''}
             maxZoom={currentLayer.maxZoom || 19}
           />
+
+          {/* Reference Geographical Labels Overlay for Dark Canvas */}
+          {currentLayer.referenceUrl && (
+            <TileLayer
+              key={`${currentLayer.id}-ref`}
+              url={currentLayer.referenceUrl}
+              zIndex={300}
+              maxZoom={currentLayer.maxZoom || 16}
+            />
+          )}
 
           {/* RainViewer Live Precipitation Radar Tile Layer Overlay */}
           {showRadar && radarPath && (
