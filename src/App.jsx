@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import Header from './components/Header';
 import SearchBar from './components/SearchBar';
 import CurrentWeather from './components/CurrentWeather';
@@ -11,6 +12,8 @@ import LoadingState from './components/LoadingState';
 import ErrorMessage from './components/ErrorMessage';
 import InteractiveMap from './components/InteractiveMap';
 import WeatherBackground from './components/WeatherBackground';
+import LockedForecastCard from './components/LockedForecastCard';
+import LoginModal from './components/LoginModal';
 import { searchCities, fetchWeatherData, reverseGeocode } from './services/weatherApi';
 
 const DEFAULT_CITY = {
@@ -22,7 +25,9 @@ const DEFAULT_CITY = {
   timezone: 'Asia/Kolkata',
 };
 
-export default function App() {
+function WeatherDashboardApp() {
+  const { user } = useAuth();
+
   // Theme state: Persisted in localStorage, respects system theme
   const [theme, setTheme] = useState(() => {
     const saved = localStorage.getItem('weather_theme');
@@ -105,7 +110,6 @@ export default function App() {
       if (err.name !== 'AbortError') {
         console.error('Failed to load weather:', err);
         setWeatherError(err.message || 'Unable to retrieve live forecast.');
-        // Note: Previous valid weatherData is intentionally preserved in state
       }
     } finally {
       setIsLoadingWeather(false);
@@ -186,7 +190,6 @@ export default function App() {
         setUserLocation({ latitude, longitude });
 
         try {
-          // Attempt reverse geocoding to give a friendly place name
           const resolvedLocation = await reverseGeocode(latitude, longitude);
           const userCity = {
             name: resolvedLocation.name || 'Your Location',
@@ -243,13 +246,8 @@ export default function App() {
     setWeatherError(null);
 
     try {
-      // 1. Reverse geocode to identify city or place name
       const location = await reverseGeocode(lat, lon, abortController.signal);
-
-      // 2. Fetch live weather forecast for clicked coordinates
       const data = await fetchWeatherData(lat, lon, 'auto', abortController.signal);
-
-      // 3. Update dashboard state
       setSelectedCity(location);
       setWeatherData(data);
     } catch (err) {
@@ -268,7 +266,7 @@ export default function App() {
       <WeatherBackground weather={weatherData} />
 
       <div className="app-container">
-        {/* Header with Title, Live Clock, Unit Switch & Theme Toggle */}
+        {/* Header with Title, Live Clock, Unit Switch, Theme Toggle & User Auth */}
         <Header
           theme={theme}
           onToggleTheme={toggleTheme}
@@ -311,45 +309,60 @@ export default function App() {
               animate={{ opacity: 1 }}
               transition={{ duration: 0.35 }}
             >
-              {/* Top Hero Section: Current Weather Card */}
+              {/* Public Feature: Current Weather Hero Card */}
               <CurrentWeather
                 city={selectedCity}
                 weather={weatherData}
                 tempUnit={tempUnit}
               />
 
-              {/* Weather Metrics: 6 Cards in Responsive Grid */}
+              {/* Public Feature: Real-time Weather Metrics (Humidity, Wind, UV, etc.) */}
               <WeatherMetrics
                 weather={weatherData}
                 tempUnit={tempUnit}
               />
 
-              {/* Visual Temperature Trends & Forecast Chart */}
-              <TemperatureChart
-                hourly={weatherData.hourly}
-                daily={weatherData.daily}
-                timezone={weatherData.timezone}
-                tempUnit={tempUnit}
-              />
+              {/* Protected Features: Upcoming Forecasts & Charts */}
+              {user ? (
+                /* Authenticated User: Unlocked Full Forecasts */
+                <motion.div
+                  key="unlocked-forecasts"
+                  className="unlocked-forecasts-wrap"
+                  initial={{ opacity: 0, y: 14 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4 }}
+                >
+                  {/* Visual Temperature Trends & Forecast Chart */}
+                  <TemperatureChart
+                    hourly={weatherData.hourly}
+                    daily={weatherData.daily}
+                    timezone={weatherData.timezone}
+                    tempUnit={tempUnit}
+                  />
 
-              {/* Forecasts Section: 24-Hour Hourly + 7-Day Extended */}
-              <div className="forecasts-section">
-                <HourlyForecast
-                  hourly={weatherData.hourly}
-                  timezone={weatherData.timezone}
-                  tempUnit={tempUnit}
-                />
+                  {/* Forecasts Section: 24-Hour Hourly + 7-Day Extended */}
+                  <div className="forecasts-section">
+                    <HourlyForecast
+                      hourly={weatherData.hourly}
+                      timezone={weatherData.timezone}
+                      tempUnit={tempUnit}
+                    />
 
-                <WeeklyForecast
-                  daily={weatherData.daily}
-                  timezone={weatherData.timezone}
-                  tempUnit={tempUnit}
-                />
-              </div>
+                    <WeeklyForecast
+                      daily={weatherData.daily}
+                      timezone={weatherData.timezone}
+                      tempUnit={tempUnit}
+                    />
+                  </div>
+                </motion.div>
+              ) : (
+                /* Logged-Out Visitor: Locked Forecast Gate Card */
+                <LockedForecastCard key="locked-forecast-gate" />
+              )}
             </motion.div>
           )}
 
-          {/* Option 3: Interactive World Map Section */}
+          {/* Public Feature: Interactive World Map Section */}
           <InteractiveMap
             selectedCity={selectedCity}
             weather={weatherData}
@@ -360,6 +373,9 @@ export default function App() {
             theme={theme}
           />
         </main>
+
+        {/* Global Google Login Modal */}
+        <LoginModal />
 
         {/* Footer */}
         <footer className="app-footer">
@@ -387,5 +403,13 @@ export default function App() {
         </footer>
       </div>
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <WeatherDashboardApp />
+    </AuthProvider>
   );
 }

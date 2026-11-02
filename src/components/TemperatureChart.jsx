@@ -264,3 +264,4 @@ export default function TemperatureChart({ hourly = [], daily = [], timezone, te
     </section>
   );
 }
+

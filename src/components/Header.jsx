@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { CloudSun, Clock } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
+import UserProfileMenu from './UserProfileMenu';
 import { formatHeaderDate } from '../utils/formatters';
 
 export default function Header({ theme, onToggleTheme, tempUnit, onToggleUnit }) {
@@ -66,6 +67,7 @@ export default function Header({ theme, onToggleTheme, tempUnit, onToggleUnit })
           </div>
 
           <ThemeToggle theme={theme} onToggle={onToggleTheme} />
+          <UserProfileMenu />
         </div>
       </div>
     </header>

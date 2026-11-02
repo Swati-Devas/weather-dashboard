@@ -41,6 +41,12 @@ SkyPulse supports three tightly synchronized weather discovery options:
 
 ## ✨ Full Feature Overview
 
+- **Google Login Authentication & Forecast Access Control**:
+  - **Public Mode (Logged-Out)**: Instant access to live current weather, city search, weather metrics (humidity, wind, pressure, UV index, sun schedule), and the interactive Leaflet map.
+  - **Forecast Gate**: Upcoming forecast sections (Hourly 24-hr strip, 7-Day outlook, Analytics charts) are restricted behind an attractive glassmorphism locked card with a blurred mockup preview.
+  - **Google Sign-In Popup**: Powered by official Firebase Auth SDK (`signInWithPopup`).
+  - **Instant State Sync**: Unlocks all forecasts immediately upon login without page refresh or resetting search location.
+  - **User Profile Menu**: Header avatar, user display name, email, and sign-out dropdown menu.
 - **Dynamic Weather Background Animations**:
   - **Sunny**: Animated rotating sun rays and radiant golden sunlight.
   - **Night Sky**: Glowing crescent moon and twinkling starfield.
@@ -95,6 +101,7 @@ SkyPulse supports three tightly synchronized weather discovery options:
 | **Language** | Modern JavaScript (ES6+ Modules, Async/Await) |
 | **Styling** | Vanilla CSS3 (Custom Properties, Glassmorphism, Responsive Grid & Flexbox) |
 | **Icons** | [Lucide React](https://lucide.dev/) |
+| **Authentication** | [Firebase Auth](https://firebase.google.com/) (Google Sign-In) |
 | **Weather & Geocoding API** | [Open-Meteo](https://open-meteo.com/) (No API Key Required) |
 | **Reverse Geocoding** | BigDataCloud Client API + OpenStreetMap Nominatim Fallback |
 | **Version Control** | Git & GitHub |
@@ -127,16 +134,24 @@ Weather_Dashboard/
 │   ├── components/
 │   │   ├── CurrentWeather.jsx   # Hero card with temperature & condition
 │   │   ├── ErrorMessage.jsx     # Error banner with retry action
-│   │   ├── Header.jsx           # App title, live clock, unit switch, theme toggle
-│   │   ├── HourlyForecast.jsx   # 24-hour horizontal forecast strip
+│   │   ├── Header.jsx           # App title, live clock, user profile menu, unit switch, theme toggle
+│   │   ├── HourlyForecast.jsx   # 24-hour horizontal forecast strip (Auth gated)
 │   │   ├── InteractiveMap.jsx   # Option 3: Interactive Leaflet map with custom markers & popups
 │   │   ├── LoadingState.jsx     # Shimmer skeleton loader
+│   │   ├── LockedForecastCard.jsx # Glassmorphic gate card prompting Google sign-in
+│   │   ├── LoginModal.jsx       # Google authentication dialog modal
 │   │   ├── SearchBar.jsx        # Option 1 & 2: Search input, dropdown results, GPS button, popular chips
+│   │   ├── TemperatureChart.jsx # Recharts 24-hr temp, 7-day range & rain analytics (Auth gated)
 │   │   ├── ThemeToggle.jsx      # Light/dark mode toggle button
+│   │   ├── UserProfileMenu.jsx  # Avatar trigger, user display name & sign-out dropdown
+│   │   ├── WeatherBackground.jsx# Dynamic weather condition animations (sun, rain, snow, clouds, etc.)
 │   │   ├── WeatherIcon.jsx      # WMO-to-Lucide icon renderer
 │   │   ├── WeatherMetrics.jsx   # 6 cards for humidity, wind, feels-like, rain, UV, pressure
-│   │   └── WeeklyForecast.jsx   # 7-day forecast with visual temperature range bar
+│   │   └── WeeklyForecast.jsx   # 7-day forecast with visual temperature range bar (Auth gated)
+│   ├── context/
+│   │   └── AuthContext.jsx      # Firebase auth provider & state management
 │   ├── services/
+│   │   ├── firebase.js          # Firebase app initialization & Google Auth provider
 │   │   └── weatherApi.js        # Open-Meteo Geocoding, reverse geocoding & forecast client
 │   ├── utils/
 │   │   ├── formatters.js        # Unit converters, dates, times, compass directions
@@ -144,6 +159,7 @@ Weather_Dashboard/
 │   ├── App.jsx                  # Main application state & synchronization coordinator
 │   ├── index.css                # Glassmorphism design system, Leaflet map styling & media queries
 │   └── main.jsx                 # React root mount
+├── .env.example                 # Firebase environment variables template
 ├── .gitignore                   # Excludes node_modules, dist, logs
 ├── index.html                   # HTML entry point with meta tags
 ├── package.json                 # Dependencies and scripts
@@ -237,6 +253,64 @@ git push origin main
 
 ---
 
+---
+
+## 🔐 Firebase Authentication Setup (Google Sign-In)
+
+SkyPulse features public access to real-time current weather metrics and the interactive world map, while locking upcoming weather forecasts (hourly, 7-day, and analytics charts) behind a Google Sign-In gate.
+
+### Step 1: Create a Firebase Project
+
+1. Go to the [Firebase Console](https://console.firebase.google.com/).
+
+2. Click **Add project**, enter a project name (e.g., `skypulse-weather`), and complete the wizard.
+
+### Step 2: Enable Google Authentication
+
+1. In your Firebase project sidebar, click **Build** > **Authentication**.
+
+2. Click **Get Started** and select the **Sign-in method** tab.
+
+3. Choose **Google**, enable the toggle, configure your project support email, and click **Save**.
+
+### Step 3: Register Web App & Get Credentials
+
+1. In the Project Overview, click the **Web icon** (`</>`) to register a web app.
+
+2. Enter an app nickname (e.g., `skypulse-web`) and click **Register app**.
+
+3. Copy your `firebaseConfig` credentials.
+
+### Step 4: Add Authorized Domains
+
+1. In Firebase Console, go to **Authentication** > **Settings** > **Authorized domains**.
+
+2. `localhost` is added by default.
+
+3. Add your Vercel deployment domain (e.g., `weather-dashboard-*.vercel.app`).
+
+### Step 5: Configure Environment Variables
+
+Create a `.env` file in the root of the project (refer to `.env.example`):
+
+```env
+
+VITE_FIREBASE_API_KEY=your_api_key_here
+
+VITE_FIREBASE_AUTH_DOMAIN=your_project_id.firebaseapp.com
+
+VITE_FIREBASE_PROJECT_ID=your_project_id
+
+VITE_FIREBASE_STORAGE_BUCKET=your_project_id.appspot.com
+
+VITE_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
+
+VITE_FIREBASE_APP_ID=your_app_id
+
+```
+
+> **Note**: If Firebase environment variables are not yet provided, the application operates in safe fallback mode: the locked forecast gate is active and clicking "Sign In" will inform you to configure the environment variables.
+
 ## ⚡ Vercel Deployment
 
 Since the repository is already connected to GitHub:
@@ -246,7 +320,10 @@ Since the repository is already connected to GitHub:
    - **Build Command**: `npm run build`
    - **Output Directory**: `dist`
    - **Install Command**: `npm install`
-3. No secret environment variables are required.
+3. **Environment Variables** (Firebase):
+   - When importing the project in Vercel (or in **Project Settings > Environment Variables**), expand the **Environment Variables** section.
+   - Add all 6 VITE_FIREBASE_* variables from your .env.
+   - Click **Deploy**!
 
 ---
 
