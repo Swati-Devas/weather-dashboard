@@ -94,7 +94,8 @@ export function AuthProvider({ children }) {
       } else if (err.code === 'auth/network-request-failed') {
         errorMsg = 'Network connection failed. Please check your internet connection.';
       } else if (err.code === 'auth/unauthorized-domain') {
-        errorMsg = 'This domain is not authorized in Firebase Console. Please add it to Authorized Domains in Firebase Authentication Settings.';
+        const currentHost = typeof window !== 'undefined' ? window.location.hostname : 'your current domain';
+        errorMsg = `Domain "${currentHost}" is not authorized in Firebase. Please add "${currentHost}" to Firebase Console -> Authentication -> Settings -> Authorized Domains.`;
       } else if (err.message) {
         errorMsg = err.message;
       }
