@@ -148,3 +148,41 @@ export function getUvIndexInfo(uv) {
   if (val <= 10) return { text: 'Very High', level: 'very-high' };
   return { text: 'Extreme', level: 'extreme' };
 }
+
+/**
+ * Format visibility in km or miles
+ * @param {number} meters
+ * @param {'C' | 'F'} tempUnit
+ */
+export function formatVisibility(meters, tempUnit = 'C') {
+  if (meters === null || meters === undefined || isNaN(meters)) return '--';
+  const km = meters / 1000;
+  if (tempUnit === 'F') {
+    const miles = km * 0.621371;
+    return `${miles.toFixed(1)} mi`;
+  }
+  return `${km >= 10 ? Math.round(km) : km.toFixed(1)} km`;
+}
+
+/**
+ * Calculate the sun's daylight progress percentage (0% to 100%)
+ * @param {string} sunriseIso
+ * @param {string} sunsetIso
+ * @returns {number} percentage 0 to 100
+ */
+export function calculateSunProgress(sunriseIso, sunsetIso) {
+  if (!sunriseIso || !sunsetIso) return 50;
+  try {
+    const now = new Date().getTime();
+    const sunrise = new Date(sunriseIso).getTime();
+    const sunset = new Date(sunsetIso).getTime();
+
+    if (now <= sunrise) return 0;
+    if (now >= sunset) return 100;
+    const progress = ((now - sunrise) / (sunset - sunrise)) * 100;
+    return Math.max(0, Math.min(100, Math.round(progress)));
+  } catch {
+    return 50;
+  }
+}
+

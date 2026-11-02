@@ -1,8 +1,17 @@
 import React from 'react';
+import { CloudSun } from 'lucide-react';
 
 export default function LoadingState() {
   return (
     <div className="skeleton-dashboard" aria-label="Loading weather data..." role="status">
+      {/* Animated Floating Weather Badge Loader */}
+      <div className="skeleton-hero-loader">
+        <div className="weather-loader-halo">
+          <CloudSun size={42} className="weather-loader-icon spin-gentle" />
+        </div>
+        <p className="weather-loader-text">Fetching atmospheric data...</p>
+      </div>
+
       {/* Current Weather Skeleton */}
       <div className="card skeleton-current-card skeleton-pulse">
         <div className="skeleton-row skeleton-title-bar" />

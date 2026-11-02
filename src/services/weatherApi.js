@@ -178,6 +178,7 @@ export async function fetchWeatherData(latitude, longitude, timezone = 'auto', s
       'wind_direction_10m',
       'surface_pressure',
       'uv_index',
+      'visibility',
     ].join(','),
     hourly: [
       'temperature_2m',
@@ -192,6 +193,8 @@ export async function fetchWeatherData(latitude, longitude, timezone = 'auto', s
       'precipitation_sum',
       'precipitation_probability_max',
       'uv_index_max',
+      'sunrise',
+      'sunset',
     ].join(','),
     timezone: timezone || 'auto',
     forecast_days: '7',
@@ -283,6 +286,9 @@ function parseWeatherData(raw) {
       windDirection: current.wind_direction_10m ?? 0,
       surfacePressure: current.surface_pressure ?? null,
       uvIndex: current.uv_index ?? null,
+      visibility: current.visibility ?? null,
+      sunrise: daily.sunrise ? daily.sunrise[0] : null,
+      sunset: daily.sunset ? daily.sunset[0] : null,
       // Today's high and low from daily forecast
       todayMax: daily.temperature_2m_max ? daily.temperature_2m_max[0] : null,
       todayMin: daily.temperature_2m_min ? daily.temperature_2m_min[0] : null,

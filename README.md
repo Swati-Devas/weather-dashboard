@@ -41,33 +41,44 @@ SkyPulse supports three tightly synchronized weather discovery options:
 
 ## ✨ Full Feature Overview
 
+- **Dynamic Weather Background Animations**:
+  - **Sunny**: Animated rotating sun rays and radiant golden sunlight.
+  - **Night Sky**: Glowing crescent moon and twinkling starfield.
+  - **Cloudy**: Multi-layered drifting cloud vapor banks.
+  - **Rainy**: Angled falling raindrops and misty horizon.
+  - **Thunderstorm**: Atmospheric dark clouds with periodic lightning flashes.
+  - **Snowy**: Gently swaying and floating snowflakes of varying sizes.
+- **Visual Analytics & Trend Charts**:
+  - Recharts-powered area graphs with smooth transitions and glassmorphic tooltips.
+  - Switchable tabs for 24-Hour Temperature trend, 7-Day High/Low range, and Rain Probability (%).
 - **Live Weather API**: Real-time atmospheric conditions fetched directly from Open-Meteo (open-source, no API key required).
 - **Hero Current Weather**:
-  - City name, region, and country.
-  - Large focal temperature in Celsius or Fahrenheit.
-  - Dynamic condition badge matching WMO weather interpretation codes.
-  - Today's high and low temperatures.
-  - Feels-like (apparent) temperature.
-- **6 Detailed Weather Metrics**:
-  - **Humidity (%)**: Moisture level with comfort status.
-  - **Wind Speed (km/h)**: Real-time velocity with a rotating compass indicator.
-  - **Feels Like (°C / °F)**: Apparent temperature factoring in humidity and wind chill.
-  - **Precipitation (mm)**: Rainfall level in millimeters.
-  - **UV Index**: Solar ultraviolet radiation index.
-  - **Pressure (hPa)**: Barometric pressure level.
+  - City name, region, country, and localized date & time.
+  - Large modern focal temperature display with tabular typography.
+  - Dynamic condition badge matching official WMO weather interpretation codes.
+  - Weather illustration with glowing ambient halo.
+  - Feels-like temperature, high and low today.
+- **Detailed Weather Metrics**:
+  - **Humidity**: Circular SVG animated progress ring with moisture comfort level.
+  - **Wind**: Velocity with an interactive rotating compass needle showing degree and cardinal direction.
+  - **UV Index**: Exposure level with color-coded severity indicator.
+  - **Visibility**: Real-time distance measurement (km / mi) with clarity assessment.
+  - **Pressure**: Atmospheric pressure gauge bar (hPa).
+  - **Sun Schedule**: Sunrise and sunset times with a parabolic solar timeline tracking daylight progress.
 - **24-Hour Hourly Forecast**:
   - Horizontally scrollable timeline covering the next 24 hours.
   - Highlighted current hour ("Now") with rain probabilities and matching icons.
 - **7-Day Extended Forecast**:
-  - Daily outlook with relative temperature gauge bars showing where daily high/low lands within the week's range.
-- **Glassmorphism Design System**:
-  - Ambient glowing gradients, frosted glass cards (`backdrop-filter: blur(16px)`).
-  - Light mode and Dark mode with seamless theme adaptation on map tiles.
+  - Daily outlook with highlighted "Today" tag and relative temperature gauge bars.
+- **Premium Dark Glassmorphism Design System**:
+  - Palette: `#0B1220` (main), `#111C2F` (secondary), `#162338` (glass cards).
+  - Accents: `#38BDF8` (Sky blue) & `#818CF8` (Indigo).
+  - Font: Plus Jakarta Sans / Inter typography.
   - Respects system preferences (`prefers-color-scheme`) and persists via `localStorage`.
 - **Unit Switching**:
   - One-click toggle between Celsius (°C) and Fahrenheit (°F) with immediate recalculation.
 - **Resilient State Handling**:
-  - Shimmering skeleton loader on initial load with zero layout shift.
+  - Floating weather badge loader with shimmering skeleton cards during initial fetch.
   - Contextual error banners with retry buttons.
   - Race condition prevention with `AbortController`.
 

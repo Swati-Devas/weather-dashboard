@@ -1,13 +1,16 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import Header from './components/Header';
 import SearchBar from './components/SearchBar';
 import CurrentWeather from './components/CurrentWeather';
 import WeatherMetrics from './components/WeatherMetrics';
+import TemperatureChart from './components/TemperatureChart';
 import HourlyForecast from './components/HourlyForecast';
 import WeeklyForecast from './components/WeeklyForecast';
 import LoadingState from './components/LoadingState';
 import ErrorMessage from './components/ErrorMessage';
 import InteractiveMap from './components/InteractiveMap';
+import WeatherBackground from './components/WeatherBackground';
 import { searchCities, fetchWeatherData, reverseGeocode } from './services/weatherApi';
 
 const DEFAULT_CITY = {
@@ -261,11 +264,8 @@ export default function App() {
 
   return (
     <div className="app-layout">
-      {/* Background ambient decorative glows */}
-      <div className="ambient-background" aria-hidden="true">
-        <div className="ambient-glow glow-1" />
-        <div className="ambient-glow glow-2" />
-      </div>
+      {/* Dynamic Condition-Based Weather Background Animations */}
+      <WeatherBackground weather={weatherData} />
 
       <div className="app-container">
         {/* Header with Title, Live Clock, Unit Switch & Theme Toggle */}
@@ -291,19 +291,26 @@ export default function App() {
         {/* Main Content Area */}
         <main className="dashboard-main" id="main-content">
           {/* Error Banner with Retry button if API failed */}
-          {weatherError && (
-            <ErrorMessage
-              message={weatherError}
-              onRetry={() => loadWeatherForCity(selectedCity)}
-            />
-          )}
+          <AnimatePresence>
+            {weatherError && (
+              <ErrorMessage
+                message={weatherError}
+                onRetry={() => loadWeatherForCity(selectedCity)}
+              />
+            )}
+          </AnimatePresence>
 
           {/* Initial Loading Skeleton */}
           {isLoadingWeather && !weatherData && <LoadingState />}
 
           {/* Live Weather Dashboard Content */}
           {weatherData && (
-            <div className={`dashboard-content ${isLoadingWeather ? 'updating' : ''}`}>
+            <motion.div
+              className={`dashboard-content ${isLoadingWeather ? 'updating' : ''}`}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.35 }}
+            >
               {/* Top Hero Section: Current Weather Card */}
               <CurrentWeather
                 city={selectedCity}
@@ -317,23 +324,29 @@ export default function App() {
                 tempUnit={tempUnit}
               />
 
-              {/* Forecasts Section */}
+              {/* Visual Temperature Trends & Forecast Chart */}
+              <TemperatureChart
+                hourly={weatherData.hourly}
+                daily={weatherData.daily}
+                timezone={weatherData.timezone}
+                tempUnit={tempUnit}
+              />
+
+              {/* Forecasts Section: 24-Hour Hourly + 7-Day Extended */}
               <div className="forecasts-section">
-                {/* 24-Hour Forecast */}
                 <HourlyForecast
                   hourly={weatherData.hourly}
                   timezone={weatherData.timezone}
                   tempUnit={tempUnit}
                 />
 
-                {/* 7-Day Forecast */}
                 <WeeklyForecast
                   daily={weatherData.daily}
                   timezone={weatherData.timezone}
                   tempUnit={tempUnit}
                 />
               </div>
-            </div>
+            </motion.div>
           )}
 
           {/* Option 3: Interactive World Map Section */}
