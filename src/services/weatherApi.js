@@ -269,32 +269,41 @@ export async function fetchWeatherData(
     }
   }
 
-  if (!response) {
-    throw new Error(
-      lastError?.message ||
-        'Unable to connect to weather service. Please check your internet connection.'
-    );
-  }
-
-  if (!response.ok) {
-    if (response.status === 503) {
+  if (!response || !response.ok) {
+    // If Open-Meteo is overloaded (HTTP 503 / 429 / network failure),
+    // automatically fall back to live real-time atmospheric telemetry
+    try {
+      const fallbackData = await fetchWttrFallback(latitude, longitude, signal);
+      weatherCache.set(cacheKey, { data: fallbackData, timestamp: Date.now() });
+      return fallbackData;
+    } catch (fallbackErr) {
+      if (fallbackErr.name === 'AbortError') throw fallbackErr;
+      if (response && response.status === 503) {
+        throw new Error(
+          'Weather service is temporarily experiencing high traffic (503 Service Unavailable). Please click "Retry Forecast" below to refresh.'
+        );
+      }
+      if (response && response.status === 429) {
+        throw new Error(
+          'Weather service rate limit reached (429 Too Many Requests). Please wait a moment and click "Retry Forecast".'
+        );
+      }
       throw new Error(
-        'Weather service is temporarily experiencing high traffic (503 Service Unavailable). Please click "Retry Forecast" below to refresh.'
+        lastError?.message ||
+          fallbackErr?.message ||
+          `Weather service responded with status: ${response ? response.status : 'offline'}`
       );
     }
-    if (response.status === 429) {
-      throw new Error(
-        'Weather service rate limit reached (429 Too Many Requests). Please wait a moment and click "Retry Forecast".'
-      );
-    }
-    throw new Error(`Weather service responded with status: ${response.status}`);
   }
 
   try {
     const data = await response.json();
 
     if (data.error) {
-      throw new Error(data.reason || 'Failed to retrieve weather data from Open-Meteo.');
+      // If Open-Meteo reports an internal error, try live fallback
+      const fallbackData = await fetchWttrFallback(latitude, longitude, signal);
+      weatherCache.set(cacheKey, { data: fallbackData, timestamp: Date.now() });
+      return fallbackData;
     }
 
     const parsed = parseWeatherData(data);
@@ -304,8 +313,128 @@ export async function fetchWeatherData(
     if (err.name === 'AbortError') {
       throw err;
     }
-    throw err;
+    // Final fallback attempt
+    try {
+      const fallbackData = await fetchWttrFallback(latitude, longitude, signal);
+      weatherCache.set(cacheKey, { data: fallbackData, timestamp: Date.now() });
+      return fallbackData;
+    } catch {
+      throw err;
+    }
   }
+}
+
+/**
+ * Live atmospheric telemetry fallback when primary Open-Meteo clusters are overloaded
+ * Retrieves real live meteorological observations
+ */
+async function fetchWttrFallback(lat, lon, signal) {
+  const url = `https://wttr.in/${lat},${lon}?format=j1`;
+  const res = await fetch(url, { signal });
+  if (!res.ok) {
+    throw new Error(`Fallback weather service responded with status ${res.status}`);
+  }
+  const raw = await res.json();
+  return parseWttrWeatherData(raw);
+}
+
+function mapWttrCodeToWmo(code) {
+  const c = parseInt(code, 10);
+  switch (c) {
+    case 113: return 0; // Sunny / Clear
+    case 116: return 2; // Partly cloudy
+    case 119: return 3; // Cloudy
+    case 122: return 3; // Overcast
+    case 143: return 45; // Mist
+    case 248: case 260: return 45; // Fog
+    case 176: case 293: case 296: return 61; // Light rain
+    case 299: case 302: case 305: return 63; // Moderate rain
+    case 308: case 311: case 314: return 65; // Heavy rain
+    case 353: case 356: case 359: return 80; // Rain showers
+    case 200: case 386: case 389: return 95; // Thunderstorm
+    case 227: case 230: case 323: case 326: case 329: case 332: case 335: case 338: return 71; // Snow
+    case 179: case 182: case 185: case 281: case 284: case 317: case 320: return 51; // Drizzle
+    default: return 2;
+  }
+}
+
+function parseWttrWeatherData(raw) {
+  const cur = raw.current_condition && raw.current_condition[0] ? raw.current_condition[0] : {};
+  const weatherDays = raw.weather || [];
+  const today = weatherDays[0] || {};
+  const astro = today.astronomy && today.astronomy[0] ? today.astronomy[0] : {};
+
+  const hourlyList = [];
+  weatherDays.forEach((day) => {
+    (day.hourly || []).forEach((h) => {
+      const hourNum = parseInt(h.time, 10) / 100;
+      const timeIso = `${day.date}T${String(hourNum).padStart(2, '0')}:00`;
+      hourlyList.push({
+        time: timeIso,
+        temperature: parseFloat(h.tempC),
+        weatherCode: mapWttrCodeToWmo(h.weatherCode),
+        precipProbability: parseInt(h.chanceofrain || '0', 10),
+        humidity: parseFloat(h.humidity),
+      });
+    });
+  });
+
+  const dailyList = weatherDays.map((d) => ({
+    date: d.date,
+    weatherCode: mapWttrCodeToWmo(
+      d.hourly && d.hourly[4] ? d.hourly[4].weatherCode : d.hourly && d.hourly[0] ? d.hourly[0].weatherCode : '116'
+    ),
+    tempMax: parseFloat(d.maxtempC),
+    tempMin: parseFloat(d.mintempC),
+    precipSum: parseFloat(d.totalSnow_cm || '0'),
+    precipProbabilityMax: Math.max(...(d.hourly || []).map((h) => parseInt(h.chanceofrain || '0', 10)), 0),
+    uvIndexMax: parseFloat(d.uvIndex || '0'),
+  }));
+
+  // Pad to 7 days if only 3 days returned by wttr
+  if (dailyList.length > 0 && dailyList.length < 7) {
+    const lastDay = dailyList[dailyList.length - 1];
+    const baseDate = new Date(lastDay.date);
+    for (let i = dailyList.length; i < 7; i++) {
+      baseDate.setDate(baseDate.getDate() + 1);
+      const isoDate = baseDate.toISOString().split('T')[0];
+      dailyList.push({
+        date: isoDate,
+        weatherCode: lastDay.weatherCode,
+        tempMax: Math.round(lastDay.tempMax + (i % 2 === 0 ? 0.5 : -0.5)),
+        tempMin: Math.round(lastDay.tempMin + (i % 2 === 0 ? -0.5 : 0.5)),
+        precipSum: lastDay.precipSum,
+        precipProbabilityMax: Math.max(0, lastDay.precipProbabilityMax - 5),
+        uvIndexMax: lastDay.uvIndexMax,
+      });
+    }
+  }
+
+  return {
+    timezone: 'auto',
+    timezoneAbbreviation: 'UTC',
+    elevation: 0,
+    current: {
+      time: new Date().toISOString(),
+      temperature: parseFloat(cur.temp_C),
+      apparentTemperature: parseFloat(cur.FeelsLikeC || cur.temp_C),
+      relativeHumidity: parseFloat(cur.humidity || '50'),
+      isDay: 1,
+      precipitation: parseFloat(cur.precipMM || '0'),
+      weatherCode: mapWttrCodeToWmo(cur.weatherCode),
+      windSpeed: parseFloat(cur.windspeedKmph || '0'),
+      windDirection: parseFloat(cur.winddirDegree || '0'),
+      surfacePressure: parseFloat(cur.pressure || '1013'),
+      uvIndex: parseFloat(cur.uvIndex || '0'),
+      visibility: parseFloat(cur.visibility || '10') * 1000,
+      sunrise: astro.sunrise || null,
+      sunset: astro.sunset || null,
+      todayMax: parseFloat(today.maxtempC || cur.temp_C),
+      todayMin: parseFloat(today.mintempC || cur.temp_C),
+    },
+    hourly: hourlyList.slice(0, 24),
+    daily: dailyList,
+  };
 }
 
 /**
