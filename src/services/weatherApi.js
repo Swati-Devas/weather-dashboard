@@ -6,6 +6,15 @@
 const GEOCODING_BASE_URL = 'https://geocoding-api.open-meteo.com/v1/search';
 const FORECAST_BASE_URL = 'https://api.open-meteo.com/v1/forecast';
 
+// 5-Minute In-Memory Caches for coordinate lookups to avoid duplicate API calls
+const CACHE_TTL_MS = 5 * 60 * 1000;
+const reverseGeocodeCache = new Map();
+const weatherCache = new Map();
+
+function getCacheKey(lat, lon) {
+  return `${Number(lat).toFixed(2)},${Number(lon).toFixed(2)}`;
+}
+
 /**
  * Search cities by name using Open-Meteo Geocoding API
  * @param {string} cityName - Name of the city to search for
@@ -75,6 +84,12 @@ export async function reverseGeocode(latitude, longitude, signal) {
     throw new Error('Invalid coordinates for reverse geocoding.');
   }
 
+  const cacheKey = getCacheKey(lat, lon);
+  const cached = reverseGeocodeCache.get(cacheKey);
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
+    return cached.data;
+  }
+
   const defaultLocation = {
     name: `Location (${lat >= 0 ? lat.toFixed(2) + '°N' : Math.abs(lat).toFixed(2) + '°S'}, ${lon >= 0 ? lon.toFixed(2) + '°E' : Math.abs(lon).toFixed(2) + '°W'})`,
     country: '',
@@ -99,7 +114,7 @@ export async function reverseGeocode(latitude, longitude, signal) {
       const admin1 = data.principalSubdivision || '';
 
       if (cityName || country) {
-        return {
+        const result = {
           name: cityName || country,
           country: country,
           admin1: admin1 !== cityName ? admin1 : '',
@@ -107,6 +122,8 @@ export async function reverseGeocode(latitude, longitude, signal) {
           longitude: lon,
           timezone: 'auto',
         };
+        reverseGeocodeCache.set(cacheKey, { data: result, timestamp: Date.now() });
+        return result;
       }
     }
   } catch (err) {
@@ -134,7 +151,7 @@ export async function reverseGeocode(latitude, longitude, signal) {
       const admin1 = addr.state || addr.region || '';
 
       if (cityName || country) {
-        return {
+        const result = {
           name: cityName || country,
           country: country,
           admin1: admin1 !== cityName ? admin1 : '',
@@ -142,6 +159,8 @@ export async function reverseGeocode(latitude, longitude, signal) {
           longitude: lon,
           timezone: 'auto',
         };
+        reverseGeocodeCache.set(cacheKey, { data: result, timestamp: Date.now() });
+        return result;
       }
     }
   } catch (err) {
@@ -149,6 +168,7 @@ export async function reverseGeocode(latitude, longitude, signal) {
   }
 
   // 3. Fallback when over uninhabited water or remote regions
+  reverseGeocodeCache.set(cacheKey, { data: defaultLocation, timestamp: Date.now() });
   return defaultLocation;
 }
 
@@ -162,6 +182,12 @@ export async function reverseGeocode(latitude, longitude, signal) {
 export async function fetchWeatherData(latitude, longitude, timezone = 'auto', signal) {
   if (latitude === undefined || longitude === undefined || isNaN(latitude) || isNaN(longitude)) {
     throw new Error('Invalid coordinates provided.');
+  }
+
+  const cacheKey = getCacheKey(latitude, longitude);
+  const cached = weatherCache.get(cacheKey);
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
+    return cached.data;
   }
 
   const params = new URLSearchParams({
@@ -215,7 +241,9 @@ export async function fetchWeatherData(latitude, longitude, timezone = 'auto', s
       throw new Error(data.reason || 'Failed to retrieve weather data from Open-Meteo.');
     }
 
-    return parseWeatherData(data);
+    const parsed = parseWeatherData(data);
+    weatherCache.set(cacheKey, { data: parsed, timestamp: Date.now() });
+    return parsed;
   } catch (err) {
     if (err.name === 'AbortError') {
       throw err;

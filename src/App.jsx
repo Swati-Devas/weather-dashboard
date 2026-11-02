@@ -234,30 +234,20 @@ function WeatherDashboardApp() {
    * Option 3: Handle click anywhere on the Interactive World Map
    */
   const handleMapClick = async (lat, lon) => {
-    if (lat === undefined || lon === undefined) return;
+    // Retained for direct map coordinates logging/handling if needed
+  };
 
-    if (mapClickAbortRef.current) {
-      mapClickAbortRef.current.abort();
-    }
-    const abortController = new AbortController();
-    mapClickAbortRef.current = abortController;
-
-    setIsLoadingMapWeather(true);
-    setWeatherError(null);
-
-    try {
-      const location = await reverseGeocode(lat, lon, abortController.signal);
-      const data = await fetchWeatherData(lat, lon, 'auto', abortController.signal);
-      setSelectedCity(location);
+  /**
+   * Synchronize location and weather selected from the map with the main dashboard
+   */
+  const handleSelectLocationFromMap = (location, data) => {
+    if (location) setSelectedCity(location);
+    if (data) {
       setWeatherData(data);
-    } catch (err) {
-      if (err.name !== 'AbortError') {
-        console.error('Map location fetch error:', err);
-        setWeatherError(err.message || 'Unable to fetch weather for selected map location.');
-      }
-    } finally {
-      setIsLoadingMapWeather(false);
+    } else if (location) {
+      loadWeatherForCity(location);
     }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
@@ -367,8 +357,8 @@ function WeatherDashboardApp() {
             selectedCity={selectedCity}
             weather={weatherData}
             userLocation={userLocation}
-            onMapClick={handleMapClick}
-            isLoadingLocationWeather={isLoadingMapWeather}
+            onSelectLocationFromMap={handleSelectLocationFromMap}
+            isLoadingLocationWeather={isLoadingWeather}
             tempUnit={tempUnit}
             theme={theme}
           />
