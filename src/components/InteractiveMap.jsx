@@ -42,46 +42,37 @@ import {
   formatVisibility,
 } from '../utils/formatters';
 
-// Map layer provider configurations
+// Map layer provider configurations - using official OpenStreetMap as default standard
 export const MAP_LAYERS = {
-  dark: {
-    id: 'dark',
-    name: 'Dark Matter',
-    tag: 'Recommended',
-    attribution:
-      '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions" target="_blank" rel="noopener noreferrer">CARTO</a>',
-    url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-    subdomains: 'abcd',
-    maxZoom: 19,
-  },
   standard: {
     id: 'standard',
     name: 'OpenStreetMap',
-    tag: 'Classic',
+    tag: 'Official Standard',
     attribution:
       '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors',
-    url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-    subdomains: 'abc',
+    url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
     maxZoom: 19,
+    isDark: false,
+  },
+  dark: {
+    id: 'dark',
+    name: 'OpenStreetMap (Dark Mode)',
+    tag: 'Night Theme',
+    attribution:
+      '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors',
+    url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+    maxZoom: 19,
+    isDark: true,
   },
   satellite: {
     id: 'satellite',
     name: 'Satellite View',
-    tag: 'Esri Imagery',
+    tag: 'Esri World Imagery',
     attribution:
       'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and GIS User Community',
     url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
     maxZoom: 18,
-  },
-  terrain: {
-    id: 'terrain',
-    name: 'Terrain Topo',
-    tag: 'Elevation',
-    attribution:
-      'Map: &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a>, SRTM | Style: &copy; <a href="https://opentopomap.org" target="_blank" rel="noopener noreferrer">OpenTopoMap</a>',
-    url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
-    subdomains: 'abc',
-    maxZoom: 17,
+    isDark: false,
   },
 };
 
@@ -231,9 +222,13 @@ export default function InteractiveMap({
   const activeMarkerRef = useRef(null);
   const abortControllerRef = useRef(null);
 
-  // Map layer state persisted in localStorage
+  // Map layer state persisted in localStorage (defaults to official OpenStreetMap 'standard')
   const [mapLayer, setMapLayer] = useState(() => {
-    return localStorage.getItem('skypulse_map_layer') || 'dark';
+    const saved = localStorage.getItem('skypulse_map_layer');
+    if (saved && (saved === 'standard' || saved === 'dark' || saved === 'satellite')) {
+      return saved;
+    }
+    return 'standard';
   });
   const [isLayerMenuOpen, setIsLayerMenuOpen] = useState(false);
 
@@ -524,7 +519,7 @@ export default function InteractiveMap({
   };
 
   // Active layer metadata
-  const currentLayer = MAP_LAYERS[mapLayer] || MAP_LAYERS.dark;
+  const currentLayer = MAP_LAYERS[mapLayer] || MAP_LAYERS.standard;
 
   // Selected weather info
   const currWeather = inspectedWeather?.current || weather?.current;
@@ -608,7 +603,7 @@ export default function InteractiveMap({
             key={currentLayer.id}
             attribution={currentLayer.attribution}
             url={currentLayer.url}
-            subdomains={currentLayer.subdomains || 'abc'}
+            className={currentLayer.isDark ? 'leaflet-tile-dark' : ''}
             maxZoom={currentLayer.maxZoom || 19}
           />
 

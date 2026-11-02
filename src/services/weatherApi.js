@@ -173,21 +173,32 @@ export async function reverseGeocode(latitude, longitude, signal) {
 }
 
 /**
- * Fetch complete live weather data for given coordinates
+ * Fetch complete live weather data for given coordinates with automated retry
  * @param {number} latitude
  * @param {number} longitude
  * @param {string} [timezone='auto']
  * @param {AbortSignal} [signal]
+ * @param {boolean} [forceRefresh=false]
  */
-export async function fetchWeatherData(latitude, longitude, timezone = 'auto', signal) {
+export async function fetchWeatherData(
+  latitude,
+  longitude,
+  timezone = 'auto',
+  signal,
+  forceRefresh = false
+) {
   if (latitude === undefined || longitude === undefined || isNaN(latitude) || isNaN(longitude)) {
     throw new Error('Invalid coordinates provided.');
   }
 
   const cacheKey = getCacheKey(latitude, longitude);
-  const cached = weatherCache.get(cacheKey);
-  if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
-    return cached.data;
+  if (forceRefresh) {
+    weatherCache.delete(cacheKey);
+  } else {
+    const cached = weatherCache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
+      return cached.data;
+    }
   }
 
   const params = new URLSearchParams({
@@ -228,13 +239,58 @@ export async function fetchWeatherData(latitude, longitude, timezone = 'auto', s
 
   const url = `${FORECAST_BASE_URL}?${params.toString()}`;
 
-  try {
-    const response = await fetch(url, { signal });
+  let response = null;
+  let lastError = null;
+  const maxRetries = 2;
 
-    if (!response.ok) {
-      throw new Error(`Weather service responded with status: ${response.status}`);
+  // Automated retry with backoff for transient 503 / 502 / 504 / 429
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      response = await fetch(url, { signal });
+      if (response.ok) {
+        break;
+      }
+      if ([503, 502, 504, 429].includes(response.status)) {
+        if (attempt < maxRetries) {
+          await new Promise((resolve) => setTimeout(resolve, 600 * (attempt + 1)));
+          continue;
+        }
+      }
+      break;
+    } catch (err) {
+      if (err.name === 'AbortError') {
+        throw err;
+      }
+      lastError = err;
+      if (attempt < maxRetries) {
+        await new Promise((resolve) => setTimeout(resolve, 600 * (attempt + 1)));
+        continue;
+      }
     }
+  }
 
+  if (!response) {
+    throw new Error(
+      lastError?.message ||
+        'Unable to connect to weather service. Please check your internet connection.'
+    );
+  }
+
+  if (!response.ok) {
+    if (response.status === 503) {
+      throw new Error(
+        'Weather service is temporarily experiencing high traffic (503 Service Unavailable). Please click "Retry Forecast" below to refresh.'
+      );
+    }
+    if (response.status === 429) {
+      throw new Error(
+        'Weather service rate limit reached (429 Too Many Requests). Please wait a moment and click "Retry Forecast".'
+      );
+    }
+    throw new Error(`Weather service responded with status: ${response.status}`);
+  }
+
+  try {
     const data = await response.json();
 
     if (data.error) {
@@ -248,7 +304,7 @@ export async function fetchWeatherData(latitude, longitude, timezone = 'auto', s
     if (err.name === 'AbortError') {
       throw err;
     }
-    throw new Error(err.message || 'Unable to fetch weather forecast. Please try again.');
+    throw err;
   }
 }
 

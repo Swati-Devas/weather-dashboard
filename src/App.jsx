@@ -85,7 +85,7 @@ function WeatherDashboardApp() {
   /**
    * Fetch weather for a given city / location object
    */
-  const loadWeatherForCity = useCallback(async (city) => {
+  const loadWeatherForCity = useCallback(async (city, forceRefresh = false) => {
     if (!city || city.latitude === undefined || city.longitude === undefined) return;
 
     if (weatherAbortRef.current) {
@@ -102,7 +102,8 @@ function WeatherDashboardApp() {
         city.latitude,
         city.longitude,
         city.timezone || 'auto',
-        abortController.signal
+        abortController.signal,
+        forceRefresh
       );
       setWeatherData(data);
       setSelectedCity(city);
@@ -283,7 +284,7 @@ function WeatherDashboardApp() {
             {weatherError && (
               <ErrorMessage
                 message={weatherError}
-                onRetry={() => loadWeatherForCity(selectedCity)}
+                onRetry={() => loadWeatherForCity(selectedCity, true)}
               />
             )}
           </AnimatePresence>
