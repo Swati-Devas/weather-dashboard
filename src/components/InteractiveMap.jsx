@@ -42,32 +42,32 @@ import {
   formatVisibility,
 } from '../utils/formatters';
 
-// Map layer provider configurations - using official OpenStreetMap as default standard
+// Map layer provider configurations - SkyPulse Dark Theme as primary default
 export const MAP_LAYERS = {
-  standard: {
-    id: 'standard',
-    name: 'OpenStreetMap',
-    tag: 'Official Standard',
-    attribution:
-      '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors',
-    url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-    maxZoom: 19,
-    isDark: false,
-  },
   dark: {
     id: 'dark',
-    name: 'OpenStreetMap (Dark Mode)',
-    tag: 'Night Theme',
+    name: 'SkyPulse Dark',
+    tag: 'Default Navy',
     attribution:
       '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors',
     url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
     maxZoom: 19,
     isDark: true,
   },
+  standard: {
+    id: 'standard',
+    name: 'OpenStreetMap',
+    tag: 'Classic Standard',
+    attribution:
+      '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors',
+    url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+    maxZoom: 19,
+    isDark: false,
+  },
   satellite: {
     id: 'satellite',
     name: 'Satellite View',
-    tag: 'Esri World Imagery',
+    tag: 'Esri Imagery',
     attribution:
       'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and GIS User Community',
     url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
@@ -129,36 +129,34 @@ function createWeatherMarkerIcon({
     });
   }
 
-  const categoryGradients = {
-    clear: 'linear-gradient(135deg, #f59e0b, #d97706)',
-    clouds: 'linear-gradient(135deg, #64748b, #334155)',
-    rain: 'linear-gradient(135deg, #0284c7, #0369a1)',
-    snow: 'linear-gradient(135deg, #06b6d4, #0891b2)',
-    thunderstorm: 'linear-gradient(135deg, #8b5cf6, #5b21b6)',
-    fog: 'linear-gradient(135deg, #94a3b8, #475569)',
-  };
-
-  const bgGradient = categoryGradients[category] || categoryGradients.clouds;
   const tempText =
     temp !== null && temp !== undefined ? `${Math.round(temp)}°` : '';
 
   return L.divIcon({
     className: 'custom-weather-marker-pin',
     html: `
-      <div class="weather-pin-container ${isSelected ? 'pin-is-selected' : ''}" data-category="${category}">
-        ${isSelected ? '<div class="pin-radar-ring"></div>' : ''}
-        <div class="pin-capsule" style="background: ${bgGradient};">
+      <div class="weather-pin-container ${isSelected ? 'pin-is-selected' : 'pin-standard'}" data-category="${category}">
+        ${
+          isSelected
+            ? `
+            <div class="pin-glow-core"></div>
+            <div class="pin-radar-ring ring-1"></div>
+            <div class="pin-radar-ring ring-2"></div>
+            `
+            : ''
+        }
+        <div class="pin-capsule ${isSelected ? 'capsule-selected' : 'capsule-standard'}">
           <div class="pin-icon-circle">
             ${getCategorySvg(category, isDay)}
           </div>
           ${tempText ? `<span class="pin-temperature-val">${tempText}</span>` : ''}
         </div>
-        <div class="pin-pointer"></div>
+        <div class="pin-pointer ${isSelected ? 'pointer-selected' : ''}"></div>
       </div>
     `,
-    iconSize: [64, 46],
-    iconAnchor: [32, 44],
-    popupAnchor: [0, -42],
+    iconSize: [68, 50],
+    iconAnchor: [34, 46],
+    popupAnchor: [0, -44],
   });
 }
 
@@ -222,13 +220,13 @@ export default function InteractiveMap({
   const activeMarkerRef = useRef(null);
   const abortControllerRef = useRef(null);
 
-  // Map layer state persisted in localStorage (defaults to official OpenStreetMap 'standard')
+  // Map layer state persisted in localStorage (defaults to SkyPulse Dark Theme)
   const [mapLayer, setMapLayer] = useState(() => {
     const saved = localStorage.getItem('skypulse_map_layer');
-    if (saved && (saved === 'standard' || saved === 'dark' || saved === 'satellite')) {
+    if (saved && (saved === 'dark' || saved === 'standard' || saved === 'satellite')) {
       return saved;
     }
-    return 'standard';
+    return 'dark';
   });
   const [isLayerMenuOpen, setIsLayerMenuOpen] = useState(false);
 
@@ -519,7 +517,7 @@ export default function InteractiveMap({
   };
 
   // Active layer metadata
-  const currentLayer = MAP_LAYERS[mapLayer] || MAP_LAYERS.standard;
+  const currentLayer = MAP_LAYERS[mapLayer] || MAP_LAYERS.dark;
 
   // Selected weather info
   const currWeather = inspectedWeather?.current || weather?.current;

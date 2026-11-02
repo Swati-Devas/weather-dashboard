@@ -1966,8 +1966,13 @@ a {
 }
 
 /* Legitimate Dark Theme for OpenStreetMap Tiles without external API key */
+/* SkyPulse Premium Dark Map Theme: Deep Navy Oceans, Dark Slate Land, Subtle Labels */
 .leaflet-tile-dark {
-  filter: brightness(0.65) invert(1) contrast(1.2) hue-rotate(200deg) saturate(0.6) !important;
+  filter: brightness(0.70) invert(1) contrast(1.25) hue-rotate(205deg) saturate(0.85) !important;
+}
+
+.map-wrapper {
+  background-color: #0B1220 !important;
 }
 
 .leaflet-container {
@@ -2441,7 +2446,7 @@ a {
   box-shadow: 0 4px 16px rgba(16, 185, 129, 0.4);
 }
 
-/* Custom Weather Pin Leaflet Marker */
+/* Custom Weather Pin Leaflet Marker - SkyPulse Glowing Cyan Markers */
 .custom-weather-marker-pin,
 .custom-gps-pin {
   background: none !important;
@@ -2455,38 +2460,51 @@ a {
   align-items: center;
   cursor: pointer;
   transform: translateY(-4px);
-  transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), filter 0.3s ease;
 }
 
 .weather-pin-container:hover {
-  transform: translateY(-8px) scale(1.1);
+  transform: translateY(-8px) scale(1.12);
   z-index: 1000 !important;
 }
 
+/* Selected vs Standard Marker Capsules */
 .pin-capsule {
   display: flex;
   align-items: center;
-  gap: 0.35rem;
-  padding: 0.3rem 0.6rem;
+  gap: 0.4rem;
+  padding: 0.32rem 0.65rem;
   border-radius: 9999px;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.4);
-  border: 1.5px solid rgba(255, 255, 255, 0.9);
-  color: #ffffff;
+  color: #F8FAFC;
+  transition: all 0.3s ease;
+}
+
+.capsule-selected {
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.95), rgba(30, 58, 138, 0.95));
+  border: 2px solid #38BDF8;
+  box-shadow: 0 0 18px rgba(56, 189, 248, 0.9), 0 0 36px rgba(56, 189, 248, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  color: #FFFFFF;
+}
+
+.capsule-standard {
+  background: rgba(17, 28, 47, 0.88);
+  border: 1.5px solid rgba(56, 189, 248, 0.6);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6), 0 0 10px rgba(56, 189, 248, 0.4);
 }
 
 .pin-icon-circle {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 16px;
-  height: 16px;
+  width: 17px;
+  height: 17px;
 }
 
 .pin-temperature-val {
-  font-size: 0.82rem;
+  font-size: 0.85rem;
   font-weight: 800;
   letter-spacing: -0.02em;
-  color: #ffffff;
+  color: #FFFFFF;
   line-height: 1;
 }
 
@@ -2495,26 +2513,62 @@ a {
   height: 0;
   border-left: 5px solid transparent;
   border-right: 5px solid transparent;
-  border-top: 6px solid rgba(255, 255, 255, 0.9);
+  border-top: 6px solid rgba(56, 189, 248, 0.7);
   margin-top: -1px;
+  transition: border-color 0.3s ease;
 }
 
-.pin-is-selected .pin-radar-ring {
+.pointer-selected {
+  border-top: 7px solid #38BDF8;
+  filter: drop-shadow(0 2px 6px rgba(56, 189, 248, 0.8));
+}
+
+/* Continuous Soft Glowing Aura & Multi-Concentric Radar Rings */
+.pin-glow-core {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 68px;
-  height: 68px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
-  border: 2px solid rgba(56, 189, 248, 0.7);
-  animation: marker-radar 2s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.6) 0%, rgba(56, 189, 248, 0) 70%);
+  animation: pin-glow-breathe 2.4s ease-in-out infinite alternate;
   pointer-events: none;
 }
 
+.pin-radar-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 2px solid rgba(56, 189, 248, 0.75);
+  pointer-events: none;
+}
+
+.pin-radar-ring.ring-1 {
+  width: 72px;
+  height: 72px;
+  animation: marker-radar 2.4s cubic-bezier(0.1, 0.3, 0.5, 1) infinite;
+}
+
+.pin-radar-ring.ring-2 {
+  width: 72px;
+  height: 72px;
+  animation: marker-radar 2.4s cubic-bezier(0.1, 0.3, 0.5, 1) infinite;
+  animation-delay: 1.2s;
+}
+
+@keyframes pin-glow-breathe {
+  0% { transform: translate(-50%, -50%) scale(0.9); opacity: 0.5; }
+  100% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.95; }
+}
+
 @keyframes marker-radar {
-  0% { transform: translate(-50%, -50%) scale(0.4); opacity: 0.9; }
-  100% { transform: translate(-50%, -50%) scale(1.6); opacity: 0; }
+  0% { transform: translate(-50%, -50%) scale(0.35); opacity: 0.9; }
+  50% { opacity: 0.5; }
+  100% { transform: translate(-50%, -50%) scale(1.7); opacity: 0; }
 }
 
 /* User GPS Marker */
