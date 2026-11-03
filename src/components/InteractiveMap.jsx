@@ -51,11 +51,11 @@ export const MAP_LAYERS = {
     name: 'SkyPulse Dark Navy',
     tag: 'Premium Theme',
     attribution:
-      'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ, TomTom, Intermap, iPC, USGS, METI, NRCAN, GeoBase, Kadaster NL, Ordnance Survey, OpenStreetMap contributors',
-    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',
-    referenceUrl:
-      'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}',
-    maxZoom: 16,
+      '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions" target="_blank" rel="noopener noreferrer">CARTO</a>',
+    url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+    subdomains: 'abcd',
+    maxZoom: 20,
+    maxNativeZoom: 20,
   },
   standard: {
     id: 'standard',
@@ -65,6 +65,7 @@ export const MAP_LAYERS = {
       '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors',
     url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
     maxZoom: 19,
+    maxNativeZoom: 19,
   },
   satellite: {
     id: 'satellite',
@@ -73,7 +74,8 @@ export const MAP_LAYERS = {
     attribution:
       'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and GIS User Community',
     url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-    maxZoom: 18,
+    maxZoom: 19,
+    maxNativeZoom: 18,
   },
 };
 
@@ -668,6 +670,8 @@ export default function InteractiveMap({
         <MapContainer
           center={activePos}
           zoom={5}
+          minZoom={2}
+          maxZoom={19}
           scrollWheelZoom={true}
           zoomControl={false}
           className="leaflet-map-element"
@@ -687,7 +691,9 @@ export default function InteractiveMap({
             key={`${currentLayer.id}-base`}
             attribution={currentLayer.attribution}
             url={currentLayer.url}
+            subdomains={currentLayer.subdomains || 'abc'}
             maxZoom={currentLayer.maxZoom || 19}
+            maxNativeZoom={currentLayer.maxNativeZoom || 18}
           />
 
           {/* Reference Geographical Labels Overlay for Dark Canvas */}
@@ -884,13 +890,6 @@ export default function InteractiveMap({
               onClick={() => setMapLayer('dark')}
             >
               <MapPin size={13} /> Map
-            </button>
-            <button
-              type="button"
-              className={`map-dock-tab-btn ${showRadar ? 'active' : ''}`}
-              onClick={() => setShowRadar((prev) => !prev)}
-            >
-              <Wind size={13} /> Wind
             </button>
           </div>
         </div>
