@@ -5148,3 +5148,452 @@ a {
   transform: translateY(-2px) !important;
   box-shadow: 0 10px 30px rgba(22, 139, 255, 0.7) !important;
 }
+
+
+/* ==========================================================================
+   Comprehensive Mobile Optimization & Responsive Architecture
+   Targeting 320px - 768px (iPhone SE, iPhone 12-16, Samsung Galaxy, Pixel)
+   ========================================================================== */
+
+/* Prevent any horizontal screen drift or overflow */
+html, body {
+  overflow-x: hidden !important;
+  max-width: 100vw !important;
+  width: 100% !important;
+  -webkit-text-size-adjust: 100%;
+}
+
+.app-layout {
+  overflow-x: hidden !important;
+  max-width: 100vw !important;
+  width: 100% !important;
+}
+
+/* Tablet & Mobile Breakpoints */
+@media (max-width: 768px) {
+  .app-container {
+    padding: 0.85rem 0.75rem 3rem !important;
+    gap: 1.1rem !important;
+    max-width: 100% !important;
+  }
+
+  /* Header Mobile Architecture */
+  .app-header {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    padding: 0.65rem 0.85rem !important;
+    gap: 0.65rem !important;
+    border-radius: var(--radius-md) !important;
+  }
+
+  .header-left {
+    flex: 1 !important;
+    min-width: 120px !important;
+  }
+
+  .brand-logo {
+    width: 36px !important;
+    height: 36px !important;
+  }
+
+  .brand-logo svg {
+    width: 20px !important;
+    height: 20px !important;
+  }
+
+  .brand-title {
+    font-size: 1.2rem !important;
+  }
+
+  .brand-subtitle {
+    font-size: 0.6rem !important;
+    letter-spacing: 0.06em !important;
+  }
+
+  /* Hide verbose datetime pill on mobile to prevent squishing */
+  .datetime-pill {
+    display: none !important;
+  }
+
+  .header-right {
+    flex-shrink: 0 !important;
+    gap: 0.45rem !important;
+  }
+
+  .header-controls {
+    gap: 0.45rem !important;
+  }
+
+  .unit-switch {
+    height: 34px !important;
+  }
+
+  .unit-btn {
+    padding: 0.25rem 0.55rem !important;
+    font-size: 0.76rem !important;
+  }
+
+  /* Compact Theme Toggle on Mobile */
+  .theme-toggle-btn {
+    height: 34px !important;
+    padding: 0 0.55rem !important;
+  }
+
+  .theme-toggle-label {
+    display: none !important;
+  }
+
+  .user-menu-container {
+    height: 34px !important;
+  }
+
+  .user-profile-circle-btn {
+    width: 34px !important;
+    height: 34px !important;
+  }
+
+  /* Nav Tabs Full Width Segmented Bar */
+  .header-center {
+    order: 3 !important;
+    width: 100% !important;
+    margin-top: 0.25rem !important;
+  }
+
+  .header-nav-tabs {
+    width: 100% !important;
+    display: flex !important;
+    padding: 3px !important;
+    gap: 2px !important;
+    box-sizing: border-box !important;
+  }
+
+  .header-nav-tab {
+    flex: 1 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0.42rem 0.25rem !important;
+    font-size: 0.78rem !important;
+    text-align: center !important;
+    min-width: 0 !important;
+  }
+
+  .nav-tab-label {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  /* Search Section Mobile */
+  .search-container {
+    width: 100% !important;
+  }
+
+  .search-form {
+    flex-direction: column !important;
+    gap: 0.6rem !important;
+    width: 100% !important;
+  }
+
+  .search-input-wrapper {
+    width: 100% !important;
+  }
+
+  .search-input {
+    height: 48px !important;
+    font-size: 0.88rem !important;
+    padding-left: 2.75rem !important;
+    padding-right: 2.75rem !important;
+  }
+
+  .search-actions {
+    width: 100% !important;
+    display: flex !important;
+    gap: 0.5rem !important;
+  }
+
+  .search-submit-btn,
+  .geo-locate-btn {
+    flex: 1 !important;
+    height: 46px !important;
+    min-height: 46px !important;
+    justify-content: center !important;
+    font-size: 0.88rem !important;
+    padding: 0 0.75rem !important;
+  }
+
+  /* Smooth Native Horizontal Scrolling for Popular Cities */
+  .popular-cities {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.35rem !important;
+    width: 100% !important;
+    overflow: hidden !important;
+  }
+
+  .popular-label {
+    font-size: 0.72rem !important;
+  }
+
+  .popular-chips {
+    width: 100% !important;
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
+    padding-bottom: 4px !important;
+    gap: 0.45rem !important;
+  }
+
+  .popular-chips::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  .city-chip {
+    flex-shrink: 0 !important;
+    padding: 0.32rem 0.8rem !important;
+    font-size: 0.76rem !important;
+    white-space: nowrap !important;
+  }
+
+  /* Current Weather Hero Card Mobile */
+  .current-weather-card {
+    padding: 1.15rem 1rem !important;
+  }
+
+  .current-city {
+    font-size: clamp(1.45rem, 6vw, 1.95rem) !important;
+  }
+
+  .current-region {
+    padding-left: 0 !important;
+    font-size: 0.82rem !important;
+  }
+
+  .current-meta-datetime {
+    padding-left: 0 !important;
+    font-size: 0.75rem !important;
+    flex-wrap: wrap !important;
+    gap: 0.35rem !important;
+  }
+
+  .condition-badge {
+    padding: 0.35rem 0.75rem !important;
+    font-size: 0.78rem !important;
+  }
+
+  .current-body {
+    padding: 0.6rem 0 !important;
+  }
+
+  .current-temp-number {
+    font-size: clamp(3.6rem, 14vw, 5.2rem) !important;
+  }
+
+  .current-temp-unit {
+    font-size: 1.4rem !important;
+  }
+
+  .current-hero-icon {
+    width: 68px !important;
+    height: 68px !important;
+  }
+
+  .illustration-halo {
+    width: 75px !important;
+    height: 75px !important;
+  }
+
+  .current-footer {
+    padding-top: 0.85rem !important;
+    gap: 0.75rem !important;
+  }
+
+  .meta-stat {
+    font-size: 0.82rem !important;
+  }
+
+  .high-low-stats {
+    gap: 0.85rem !important;
+  }
+
+  /* Today's Highlights 2-column Grid */
+  .metrics-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.65rem !important;
+  }
+
+  .metric-card {
+    padding: 0.85rem 0.75rem !important;
+    gap: 0.5rem !important;
+    border-radius: var(--radius-md) !important;
+  }
+
+  .metric-label {
+    font-size: 0.7rem !important;
+  }
+
+  .metric-value {
+    font-size: clamp(1.15rem, 4.5vw, 1.35rem) !important;
+  }
+
+  .metric-unit-sm {
+    font-size: 0.75rem !important;
+  }
+
+  .circular-progress-wrap {
+    width: 46px !important;
+    height: 46px !important;
+  }
+
+  /* Locked Forecast Card Mobile */
+  .locked-forecast-wrapper {
+    min-height: 380px !important;
+    padding: 2.25rem 1rem !important;
+    border-radius: var(--radius-md) !important;
+  }
+
+  .locked-badge-inner {
+    width: 56px !important;
+    height: 56px !important;
+  }
+
+  .locked-badge-icon {
+    width: 24px !important;
+    height: 24px !important;
+  }
+
+  .locked-heading {
+    font-size: 1.3rem !important;
+    text-align: center !important;
+  }
+
+  .locked-description {
+    font-size: 0.82rem !important;
+    line-height: 1.5 !important;
+    text-align: center !important;
+    padding: 0 0.5rem !important;
+  }
+
+  .locked-features-pills {
+    gap: 0.4rem !important;
+  }
+
+  .locked-pill-item {
+    font-size: 0.74rem !important;
+    padding: 0.3rem 0.65rem !important;
+  }
+
+  .unlock-forecast-btn {
+    height: 46px !important;
+    min-height: 46px !important;
+    width: 100% !important;
+    max-width: 290px !important;
+    font-size: 0.9rem !important;
+    padding: 0 1.5rem !important;
+  }
+
+  /* Interactive Map Card Mobile */
+  .map-wrapper {
+    height: 380px !important;
+    border-radius: var(--radius-md) !important;
+  }
+
+  .map-floating-glass-bar {
+    top: 10px !important;
+    left: 10px !important;
+    right: 10px !important;
+    max-width: calc(100% - 20px) !important;
+    gap: 0.4rem !important;
+  }
+
+  .map-floating-search-pill {
+    flex: 1 !important;
+    min-width: 110px !important;
+    padding: 0.35rem 0.65rem !important;
+  }
+
+  .map-search-input {
+    font-size: 0.78rem !important;
+  }
+
+  .map-floating-layer-dock {
+    padding: 2px !important;
+    gap: 2px !important;
+  }
+
+  .map-dock-tab-btn {
+    padding: 0.3rem 0.55rem !important;
+    font-size: 0.72rem !important;
+    gap: 0.25rem !important;
+  }
+
+  .map-dock-tab-btn svg {
+    width: 12px !important;
+    height: 12px !important;
+  }
+
+  .map-floating-controls {
+    top: auto !important;
+    bottom: 12px !important;
+    right: 10px !important;
+    gap: 0.25rem !important;
+    padding: 0.25rem !important;
+  }
+
+  .map-control-btn {
+    width: 32px !important;
+    height: 32px !important;
+  }
+
+  .selected-weather-panel {
+    left: 8px !important;
+    right: 8px !important;
+    bottom: 8px !important;
+    max-width: calc(100% - 16px) !important;
+    padding: 0.75rem !important;
+  }
+
+  /* Modals Mobile */
+  .login-modal-card,
+  .account-modal-card {
+    width: calc(100% - 24px) !important;
+    max-width: 380px !important;
+    padding: 1.5rem 1.25rem !important;
+    margin: 0 12px !important;
+  }
+}
+
+/* Extra Small Phones (< 380px, e.g. iPhone SE, Galaxy Fold outer) */
+@media (max-width: 380px) {
+  .app-container {
+    padding: 0.65rem 0.5rem 2.5rem !important;
+  }
+
+  .brand-title {
+    font-size: 1.05rem !important;
+  }
+
+  .brand-subtitle {
+    display: none !important;
+  }
+
+  .header-nav-tab {
+    padding: 0.38rem 0.15rem !important;
+    font-size: 0.72rem !important;
+  }
+
+  .metrics-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 0.5rem !important;
+  }
+
+  .metric-card {
+    padding: 0.75rem 0.6rem !important;
+  }
+
+  .current-temp-number {
+    font-size: 3.4rem !important;
+  }
+}
