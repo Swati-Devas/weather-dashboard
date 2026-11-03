@@ -22,3 +22,4 @@ export default function RollingNumber({ value, className = '' }) {
 
   return <motion.span className={className}>{display}</motion.span>;
 }
+

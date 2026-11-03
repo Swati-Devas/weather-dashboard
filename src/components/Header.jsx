@@ -33,6 +33,50 @@ export default function Header({ theme, onToggleTheme, tempUnit, onToggleUnit })
         </div>
       </div>
 
+      {/* Modern Center Navigation Tabs matching reference image */}
+      <nav className="header-nav-tabs" aria-label="Main Navigation">
+        <button
+          type="button"
+          className="header-nav-tab active"
+          onClick={() => {
+            const el = document.getElementById('main-content');
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
+          }}
+        >
+          Dashboard
+        </button>
+        <button
+          type="button"
+          className="header-nav-tab"
+          onClick={() => {
+            const el = document.getElementById('interactive-map-section');
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
+          }}
+        >
+          Maps
+        </button>
+        <button
+          type="button"
+          className="header-nav-tab"
+          onClick={() => {
+            const el = document.getElementById('interactive-map-section');
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
+          }}
+        >
+          Radar
+        </button>
+        <button
+          type="button"
+          className="header-nav-tab"
+          onClick={() => {
+            const el = document.querySelector('.weekly-forecast-card') || document.querySelector('.locked-forecast-wrapper');
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
+          }}
+        >
+          Forecasts
+        </button>
+      </nav>
+
       <div className="header-meta">
         <div className="datetime-pill" title="Local System Time">
           <Clock size={15} className="datetime-icon" aria-hidden="true" />

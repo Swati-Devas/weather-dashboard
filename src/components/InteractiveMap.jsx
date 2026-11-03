@@ -30,9 +30,11 @@ import {
   Loader2,
   ArrowRight,
   Sparkles,
+  Search,
+  Globe,
 } from 'lucide-react';
 import WeatherIcon from './WeatherIcon';
-import { reverseGeocode, fetchWeatherData } from '../services/weatherApi';
+import { reverseGeocode, fetchWeatherData, searchCities } from '../services/weatherApi';
 import { getWeatherInfo } from '../utils/weatherCodes';
 import {
   formatTemp,
@@ -95,6 +97,41 @@ function getCategorySvg(category, isDay = 1) {
   }
   // Clouds default
   return '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>';
+}
+
+// Global Constellation Beacon Cities matching reference image
+export const GLOBAL_BEACON_CITIES = [
+  { id: 'london', name: 'London', lat: 51.5074, lon: -0.1278, country: 'United Kingdom' },
+  { id: 'paris', name: 'Paris', lat: 48.8566, lon: 2.3522, country: 'France' },
+  { id: 'nyc', name: 'NYC', lat: 40.7128, lon: -74.006, country: 'United States' },
+  { id: 'sf', name: 'San Francisco', lat: 37.7749, lon: -122.4194, country: 'United States' },
+  { id: 'tokyo', name: 'Tokyo', lat: 35.6762, lon: 139.6503, country: 'Japan' },
+  { id: 'bengaluru', name: 'Bengaluru', lat: 12.9716, lon: 77.5946, country: 'India' },
+  { id: 'sydney', name: 'Sydney', lat: -33.8688, lon: 151.2093, country: 'Australia' },
+  { id: 'dubai', name: 'Dubai', lat: 25.2048, lon: 55.2708, country: 'United Arab Emirates' },
+  { id: 'singapore', name: 'Singapore', lat: 1.3521, lon: 103.8198, country: 'Singapore' },
+  { id: 'saopaulo', name: 'Paru', lat: -23.5505, lon: -46.6333, country: 'Brazil' },
+  { id: 'cairo', name: 'Georgan', lat: 30.0444, lon: 31.2357, country: 'Egypt' },
+];
+
+/**
+ * Constellation Beacon Node Icon Matching Reference Image
+ */
+function createBeaconIcon({ name, isSelected = false }) {
+  return L.divIcon({
+    className: 'custom-beacon-node',
+    html: `
+      <div class="beacon-marker-container ${isSelected ? 'beacon-is-active' : ''}">
+        ${isSelected ? '<div class="beacon-sonar ring-1"></div><div class="beacon-sonar ring-2"></div>' : ''}
+        <div class="beacon-halo"></div>
+        <div class="beacon-core-dot"></div>
+        <span class="beacon-city-label">${name}</span>
+      </div>
+    `,
+    iconSize: [24, 24],
+    iconAnchor: [6, 6],
+    popupAnchor: [0, -10],
+  });
 }
 
 /**
@@ -247,6 +284,57 @@ export default function InteractiveMap({
   const [inspectError, setInspectError] = useState(null);
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [hasAppliedToDashboard, setHasAppliedToDashboard] = useState(false);
+  // Floating in-map search state
+  const [mapSearchQuery, setMapSearchQuery] = useState('');
+
+  const handleSelectBeaconCity = async (city) => {
+    const loc = {
+      name: city.name,
+      country: city.country,
+      admin1: '',
+      latitude: city.lat,
+      longitude: city.lon,
+      timezone: 'auto',
+    };
+    setInspectedLocation(loc);
+    setIsPanelOpen(true);
+    setIsInspecting(true);
+    setInspectError(null);
+    setHasAppliedToDashboard(false);
+
+    try {
+      const data = await fetchWeatherData(city.lat, city.lon, 'auto');
+      setInspectedWeather(data);
+    } catch {
+      setInspectError('Unable to load weather for this location.');
+    } finally {
+      setIsInspecting(false);
+    }
+  };
+
+  const handleMapSearchKeyDown = async (e) => {
+    if (e.key === 'Enter' && mapSearchQuery.trim()) {
+      e.preventDefault();
+      try {
+        const results = await searchCities(mapSearchQuery.trim());
+        if (results && results.length > 0) {
+          const first = results[0];
+          handleSelectBeaconCity({
+            name: first.name,
+            lat: first.latitude,
+            lon: first.longitude,
+            country: first.country,
+          });
+          setMapSearchQuery('');
+        } else {
+          setMapToast({ type: 'error', message: 'Location not found.' });
+        }
+      } catch {
+        setMapToast({ type: 'error', message: 'Location not found.' });
+      }
+    }
+  };
+
 
   // Locate Me state on the map
   const [isLocatingOnMap, setIsLocatingOnMap] = useState(false);
@@ -525,8 +613,7 @@ export default function InteractiveMap({
     : null;
 
   return (
-    <section
-      ref={containerRef}
+    <section id="interactive-map-section" ref={containerRef}
       className={`card interactive-map-section ${
         isFullscreen ? 'map-fullscreen-active' : ''
       }`}
@@ -612,6 +699,25 @@ export default function InteractiveMap({
               maxZoom={currentLayer.maxZoom || 16}
             />
           )}
+
+                    {/* Global Constellation Beacon Nodes Matching User Reference Image */}
+          {GLOBAL_BEACON_CITIES.map((city) => {
+            const isSelected =
+              inspectedLocation &&
+              Math.abs(inspectedLocation.latitude - city.lat) < 0.25 &&
+              Math.abs(inspectedLocation.longitude - city.lon) < 0.25;
+
+            return (
+              <Marker
+                key={city.id}
+                position={[city.lat, city.lon]}
+                icon={createBeaconIcon({ name: city.name, isSelected })}
+                eventHandlers={{
+                  click: () => handleSelectBeaconCity(city),
+                }}
+              />
+            );
+          })}
 
           {/* RainViewer Live Precipitation Radar Tile Layer Overlay */}
           {showRadar && radarPath && (
@@ -749,6 +855,45 @@ export default function InteractiveMap({
             </Marker>
           )}
         </MapContainer>
+
+                {/* Floating Top-Left Glass Dock matching user reference image */}
+        <div className="map-floating-glass-bar">
+          <div className="map-floating-search-pill">
+            <Search size={14} className="dock-search-icon" />
+            <input
+              type="text"
+              placeholder="Search Location..."
+              value={mapSearchQuery}
+              onChange={(e) => setMapSearchQuery(e.target.value)}
+              onKeyDown={handleMapSearchKeyDown}
+              className="map-search-input"
+            />
+          </div>
+
+          <div className="map-floating-layer-dock">
+            <button
+              type="button"
+              className={`map-dock-tab-btn ${mapLayer === 'satellite' ? 'active' : ''}`}
+              onClick={() => setMapLayer('satellite')}
+            >
+              <Globe size={13} /> Satellite
+            </button>
+            <button
+              type="button"
+              className={`map-dock-tab-btn ${mapLayer === 'dark' ? 'active' : ''}`}
+              onClick={() => setMapLayer('dark')}
+            >
+              <MapPin size={13} /> Map
+            </button>
+            <button
+              type="button"
+              className={`map-dock-tab-btn ${showRadar ? 'active' : ''}`}
+              onClick={() => setShowRadar((prev) => !prev)}
+            >
+              <Wind size={13} /> Wind
+            </button>
+          </div>
+        </div>
 
         {/* Floating Glass Map Controls Toolbar */}
         <div className="map-floating-controls" role="toolbar" aria-label="Map Navigation Tools">
