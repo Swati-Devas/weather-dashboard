@@ -116,11 +116,18 @@ export default function SearchBar({
           <div className="search-actions">
             <button
               type="submit"
-              className="search-submit-btn"
+              className={`search-submit-btn ${isSearching ? 'is-loading' : ''}`}
               disabled={isSearching}
               aria-label="Search city"
             >
-              {isSearching ? 'Searching...' : 'Search'}
+              {isSearching ? (
+                <span className="search-btn-loading-content">
+                  <Loader2 size={16} className="spin-animation" />
+                  <span>Searching...</span>
+                </span>
+              ) : (
+                'Search'
+              )}
             </button>
 
             <button

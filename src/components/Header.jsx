@@ -6,6 +6,7 @@ import { formatHeaderDate } from '../utils/formatters';
 
 export default function Header({ theme, onToggleTheme, tempUnit, onToggleUnit }) {
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
+  const [activeTab, setActiveTab] = useState('dashboard');
 
   // Update time every minute
   useEffect(() => {
@@ -33,12 +34,13 @@ export default function Header({ theme, onToggleTheme, tempUnit, onToggleUnit })
         </div>
       </div>
 
-      {/* Modern Center Navigation Tabs matching reference image */}
+      {/* Modern Center Navigation Tabs with Electric Blue Active Glow */}
       <nav className="header-nav-tabs" aria-label="Main Navigation">
         <button
           type="button"
-          className="header-nav-tab active"
+          className={`header-nav-tab ${activeTab === 'dashboard' ? 'active' : ''}`}
           onClick={() => {
+            setActiveTab('dashboard');
             const el = document.getElementById('main-content');
             if (el) el.scrollIntoView({ behavior: 'smooth' });
           }}
@@ -47,8 +49,9 @@ export default function Header({ theme, onToggleTheme, tempUnit, onToggleUnit })
         </button>
         <button
           type="button"
-          className="header-nav-tab"
+          className={`header-nav-tab ${activeTab === 'maps' ? 'active' : ''}`}
           onClick={() => {
+            setActiveTab('maps');
             const el = document.getElementById('interactive-map-section');
             if (el) el.scrollIntoView({ behavior: 'smooth' });
           }}
@@ -57,8 +60,9 @@ export default function Header({ theme, onToggleTheme, tempUnit, onToggleUnit })
         </button>
         <button
           type="button"
-          className="header-nav-tab"
+          className={`header-nav-tab ${activeTab === 'radar' ? 'active' : ''}`}
           onClick={() => {
+            setActiveTab('radar');
             const el = document.getElementById('interactive-map-section');
             if (el) el.scrollIntoView({ behavior: 'smooth' });
           }}
@@ -67,8 +71,9 @@ export default function Header({ theme, onToggleTheme, tempUnit, onToggleUnit })
         </button>
         <button
           type="button"
-          className="header-nav-tab"
+          className={`header-nav-tab ${activeTab === 'forecasts' ? 'active' : ''}`}
           onClick={() => {
+            setActiveTab('forecasts');
             const el = document.querySelector('.weekly-forecast-card') || document.querySelector('.locked-forecast-wrapper');
             if (el) el.scrollIntoView({ behavior: 'smooth' });
           }}

@@ -64,6 +64,11 @@ export default function WeatherMetrics({ weather, tempUnit = 'C' }) {
 
   return (
     <section className="weather-metrics-section" aria-label="Detailed Weather Metrics">
+      <div className="metrics-section-header">
+        <h3 className="section-title">Today's Highlights</h3>
+        <span className="section-subtitle">Real-time environmental telemetry</span>
+      </div>
+
       <div className="metrics-grid">
         {/* Card 1: Humidity with Circular SVG Progress */}
         <motion.div
