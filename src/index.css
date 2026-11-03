@@ -5666,3 +5666,224 @@ img.leaflet-tile.leaflet-tile-dark {
   flex-shrink: 0 !important;
   box-sizing: border-box !important;
 }
+
+
+/* ==========================================================================
+   Map Mobile & Desktop Controls Organization
+   Search at top, [Satellite | Map | Wind] horizontal dock, vertical right toolbar
+   ========================================================================== */
+
+.map-wrapper {
+  position: relative !important;
+  background-color: #080D18 !important;
+  overflow: hidden !important;
+  border-radius: var(--radius-lg) !important;
+}
+
+/* Floating Top Bar (Search + Mode Switcher) */
+.map-floating-glass-bar {
+  position: absolute !important;
+  top: 14px !important;
+  left: 14px !important;
+  z-index: 500 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.65rem !important;
+  max-width: calc(100% - 70px) !important;
+  pointer-events: none !important;
+  flex-wrap: wrap !important;
+}
+
+.map-floating-search-pill {
+  pointer-events: auto !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  background: rgba(8, 13, 24, 0.88) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: var(--radius-full) !important;
+  padding: 0.4rem 0.85rem !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5) !important;
+}
+
+.map-floating-search-pill:focus-within {
+  border-color: #22D3EE !important;
+  box-shadow: 0 0 16px rgba(34, 211, 238, 0.35) !important;
+  background: rgba(11, 18, 32, 0.95) !important;
+}
+
+.map-search-input {
+  background: none !important;
+  border: none !important;
+  outline: none !important;
+  color: #FFFFFF !important;
+  font-size: 0.82rem !important;
+  font-weight: 500 !important;
+  width: 130px !important;
+  transition: width 0.25s ease !important;
+}
+
+.map-search-input:focus {
+  width: 170px !important;
+}
+
+.map-floating-layer-dock {
+  pointer-events: auto !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  background: rgba(8, 13, 24, 0.88) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: var(--radius-full) !important;
+  padding: 3px !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5) !important;
+  gap: 2px !important;
+}
+
+.map-dock-tab-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.35rem !important;
+  padding: 0.38rem 0.85rem !important;
+  border-radius: var(--radius-full) !important;
+  background: none !important;
+  border: none !important;
+  color: #94A3B8 !important;
+  font-size: 0.78rem !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  white-space: nowrap !important;
+}
+
+.map-dock-tab-btn:hover {
+  color: #FFFFFF !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+.map-dock-tab-btn.active {
+  background: linear-gradient(135deg, rgba(22, 139, 255, 0.35), rgba(34, 211, 238, 0.22)) !important;
+  border: 1px solid rgba(22, 139, 255, 0.65) !important;
+  color: #22D3EE !important;
+  box-shadow: 0 0 14px rgba(22, 139, 255, 0.4) !important;
+}
+
+/* Vertical Right Toolbar (Zoom, Locate, Reset, Layers, Radar, Fullscreen) */
+.map-floating-controls {
+  position: absolute !important;
+  top: 14px !important;
+  right: 14px !important;
+  z-index: 500 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 3px !important;
+  padding: 4px !important;
+  background: rgba(8, 13, 24, 0.88) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55) !important;
+}
+
+.map-control-btn {
+  width: 36px !important;
+  height: 36px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: var(--radius-sm) !important;
+  background: transparent !important;
+  border: none !important;
+  color: #94A3B8 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  padding: 0 !important;
+}
+
+.map-control-btn:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #22D3EE !important;
+}
+
+.map-control-btn.is-active,
+.map-control-btn.is-radar-active {
+  background: rgba(22, 139, 255, 0.25) !important;
+  color: #22D3EE !important;
+  box-shadow: 0 0 10px rgba(34, 211, 238, 0.35) !important;
+}
+
+.map-control-separator {
+  width: 20px !important;
+  height: 1px !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  margin: 2px 0 !important;
+}
+
+/* Mobile Specific Optimizations */
+@media (max-width: 640px) {
+  .map-wrapper {
+    height: 420px !important;
+  }
+
+  .map-floating-glass-bar {
+    top: 10px !important;
+    left: 10px !important;
+    right: 54px !important;
+    max-width: calc(100% - 64px) !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.4rem !important;
+  }
+
+  .map-floating-search-pill {
+    width: 100% !important;
+    padding: 0.35rem 0.75rem !important;
+    box-sizing: border-box !important;
+  }
+
+  .map-search-input {
+    width: 100% !important;
+    font-size: 0.76rem !important;
+  }
+
+  .map-floating-layer-dock {
+    gap: 2px !important;
+    padding: 2px !important;
+  }
+
+  .map-dock-tab-btn {
+    padding: 0.32rem 0.62rem !important;
+    font-size: 0.74rem !important;
+    gap: 0.25rem !important;
+  }
+
+  .map-floating-controls {
+    top: 10px !important;
+    right: 10px !important;
+    gap: 2px !important;
+    padding: 3px !important;
+  }
+
+  .map-control-btn {
+    width: 32px !important;
+    height: 32px !important;
+  }
+
+  .map-control-separator {
+    width: 16px !important;
+    margin: 1px 0 !important;
+  }
+
+  .leaflet-control-attribution {
+    font-size: 0.58rem !important;
+    max-width: 240px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+}

@@ -51,6 +51,18 @@ export const MAP_LAYERS = {
     name: 'SkyPulse Dark Navy',
     tag: 'Premium Theme',
     attribution:
+      'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ, TomTom, Intermap, iPC, USGS, METI, NRCAN, GeoBase, Kadaster NL, Ordnance Survey, OpenStreetMap contributors',
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',
+    referenceUrl:
+      'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}',
+    maxZoom: 19,
+    maxNativeZoom: 16,
+  },
+  standard: {
+    id: 'standard',
+    name: 'OpenStreetMap',
+    tag: 'Classic Standard',
+    attribution:
       '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors',
     url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
     maxZoom: 19,
@@ -680,9 +692,8 @@ export default function InteractiveMap({
             key={`${currentLayer.id}-base`}
             attribution={currentLayer.attribution}
             url={currentLayer.url}
-            className={currentLayer.id === 'dark' ? 'leaflet-tile-dark' : ''}
             maxZoom={currentLayer.maxZoom || 19}
-            maxNativeZoom={currentLayer.maxNativeZoom || 19}
+            maxNativeZoom={currentLayer.maxNativeZoom || 16}
           />
 
           {/* Reference Geographical Labels Overlay for Dark Canvas */}
@@ -691,7 +702,8 @@ export default function InteractiveMap({
               key={`${currentLayer.id}-ref`}
               url={currentLayer.referenceUrl}
               zIndex={300}
-              maxZoom={currentLayer.maxZoom || 16}
+              maxZoom={currentLayer.maxZoom || 19}
+              maxNativeZoom={currentLayer.maxNativeZoom || 16}
             />
           )}
 
@@ -865,20 +877,33 @@ export default function InteractiveMap({
             />
           </div>
 
-          <div className="map-floating-layer-dock">
+          <div className="map-floating-layer-dock" role="group" aria-label="Map Mode Options">
             <button
               type="button"
               className={`map-dock-tab-btn ${mapLayer === 'satellite' ? 'active' : ''}`}
               onClick={() => setMapLayer('satellite')}
+              aria-label="Satellite imagery view"
             >
-              <Globe size={13} /> Satellite
+              <Globe size={13} />
+              <span>Satellite</span>
             </button>
             <button
               type="button"
               className={`map-dock-tab-btn ${mapLayer === 'dark' ? 'active' : ''}`}
               onClick={() => setMapLayer('dark')}
+              aria-label="Dark map style"
             >
-              <MapPin size={13} /> Map
+              <MapPin size={13} />
+              <span>Map</span>
+            </button>
+            <button
+              type="button"
+              className={`map-dock-tab-btn ${showRadar ? 'active' : ''}`}
+              onClick={() => setShowRadar((prev) => !prev)}
+              aria-label="Toggle wind and rain radar"
+            >
+              <Wind size={13} />
+              <span>Wind</span>
             </button>
           </div>
         </div>
