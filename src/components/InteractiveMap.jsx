@@ -289,6 +289,7 @@ export default function InteractiveMap({
   const [hasAppliedToDashboard, setHasAppliedToDashboard] = useState(false);
   // Floating in-map search state
   const [mapSearchQuery, setMapSearchQuery] = useState('');
+  const [isMobileControlsOpen, setIsMobileControlsOpen] = useState(false);
 
   const handleSelectBeaconCity = async (city) => {
     const loc = {
@@ -908,8 +909,24 @@ export default function InteractiveMap({
           </div>
         </div>
 
-        {/* Floating Glass Map Controls Toolbar */}
-        <div className="map-floating-controls" role="toolbar" aria-label="Map Navigation Tools">
+        {/* Mobile Expandable Floating Controls Action Button */}
+        <button
+          type="button"
+          className={`map-mobile-tools-trigger ${isMobileControlsOpen ? 'is-open' : ''}`}
+          onClick={() => setIsMobileControlsOpen((prev) => !prev)}
+          title={isMobileControlsOpen ? 'Close map controls' : 'Expand map controls'}
+          aria-label={isMobileControlsOpen ? 'Close map controls' : 'Expand map navigation controls'}
+          aria-expanded={isMobileControlsOpen}
+        >
+          {isMobileControlsOpen ? <X size={18} /> : <SlidersHorizontal size={18} />}
+        </button>
+
+        {/* Floating Glass Map Controls Toolbar (Desktop: permanent; Mobile: expandable drawer) */}
+        <div
+          className={`map-floating-controls ${isMobileControlsOpen ? 'mobile-visible' : ''}`}
+          role="toolbar"
+          aria-label="Map Navigation Tools"
+        >
           {/* Zoom In */}
           <button
             type="button"
