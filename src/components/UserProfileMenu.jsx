@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { User, LogOut, ChevronDown, CheckCircle, ShieldCheck, X } from 'lucide-react';
+import { User, LogIn, UserPlus, LogOut, CheckCircle, ShieldCheck, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export default function UserProfileMenu() {
@@ -20,51 +20,38 @@ export default function UserProfileMenu() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // When logged out, show the sleek "Sign In" button in header
-  if (!user) {
-    return (
-      <button
-        type="button"
-        className="header-signin-btn"
-        onClick={openLoginModal}
-        aria-label="Sign in with Google to unlock forecasts"
-      >
-        <User size={15} />
-        <span>Sign In</span>
-      </button>
-    );
-  }
-
-  // When logged in, render Google profile picture, display name, and dropdown
-  const displayName = user.displayName || 'Google User';
-  const email = user.email || '';
-  const photoURL = user.photoURL;
+  const displayName = user?.displayName || 'Google User';
+  const email = user?.email || '';
+  const photoURL = user?.photoURL;
 
   return (
     <div className="user-menu-container" ref={menuRef}>
-      {/* Profile Trigger Button in Header */}
+      {/* Compact Circular Profile Trigger Button */}
       <button
         type="button"
-        className="user-profile-trigger"
+        className={`user-profile-circle-btn ${isDropdownOpen ? 'is-active' : ''}`}
         onClick={() => setIsDropdownOpen((prev) => !prev)}
         aria-expanded={isDropdownOpen}
         aria-haspopup="true"
-        aria-label="User account menu"
+        aria-label={user ? `User profile: ${displayName}` : 'User account options'}
+        title={user ? displayName : 'Account & Sign In'}
       >
-        {photoURL ? (
-          <img
-            src={photoURL}
-            alt={displayName}
-            className="user-avatar-img"
-            referrerPolicy="no-referrer"
-          />
+        {user ? (
+          photoURL ? (
+            <img
+              src={photoURL}
+              alt={displayName}
+              className="user-avatar-circle-img"
+              referrerPolicy="no-referrer"
+            />
+          ) : (
+            <span className="user-avatar-circle-fallback">
+              {displayName.charAt(0).toUpperCase()}
+            </span>
+          )
         ) : (
-          <div className="user-avatar-fallback">
-            {displayName.charAt(0).toUpperCase()}
-          </div>
+          <User size={16} className="profile-icon" />
         )}
-        <span className="user-display-name">{displayName}</span>
-        <ChevronDown size={14} className={`dropdown-caret ${isDropdownOpen ? 'open' : ''}`} />
       </button>
 
       {/* Profile Dropdown Menu */}
@@ -78,45 +65,86 @@ export default function UserProfileMenu() {
             transition={{ duration: 0.18 }}
             role="menu"
           >
-            <div className="dropdown-user-header">
-              <p className="dropdown-user-name">{displayName}</p>
-              <p className="dropdown-user-email">{email}</p>
-            </div>
+            {user ? (
+              // Authenticated User Menu
+              <>
+                <div className="dropdown-user-header">
+                  <p className="dropdown-user-name">{displayName}</p>
+                  <p className="dropdown-user-email">{email}</p>
+                </div>
 
-            <div className="dropdown-divider" />
+                <div className="dropdown-divider" />
 
-            <button
-              type="button"
-              className="dropdown-menu-item"
-              onClick={() => {
-                setIsDropdownOpen(false);
-                setShowAccountModal(true);
-              }}
-              role="menuitem"
-            >
-              <User size={15} className="dropdown-item-icon" />
-              <span>My Account</span>
-            </button>
+                <button
+                  type="button"
+                  className="dropdown-menu-item"
+                  onClick={() => {
+                    setIsDropdownOpen(false);
+                    setShowAccountModal(true);
+                  }}
+                  role="menuitem"
+                >
+                  <User size={15} className="dropdown-item-icon" />
+                  <span>My Account</span>
+                </button>
 
-            <button
-              type="button"
-              className="dropdown-menu-item dropdown-logout-item"
-              onClick={() => {
-                setIsDropdownOpen(false);
-                logout();
-              }}
-              role="menuitem"
-            >
-              <LogOut size={15} className="dropdown-item-icon" />
-              <span>Sign Out</span>
-            </button>
+                <button
+                  type="button"
+                  className="dropdown-menu-item dropdown-logout-item"
+                  onClick={() => {
+                    setIsDropdownOpen(false);
+                    logout();
+                  }}
+                  role="menuitem"
+                >
+                  <LogOut size={15} className="dropdown-item-icon" />
+                  <span>Sign Out</span>
+                </button>
+              </>
+            ) : (
+              // Logged-out Guest Menu: Sign In & Create Account
+              <>
+                <div className="dropdown-guest-header">
+                  <span className="dropdown-guest-title">Account</span>
+                  <span className="dropdown-guest-sub">Unlock extended forecasts</span>
+                </div>
+
+                <div className="dropdown-divider" />
+
+                <button
+                  type="button"
+                  className="dropdown-menu-item"
+                  onClick={() => {
+                    setIsDropdownOpen(false);
+                    openLoginModal();
+                  }}
+                  role="menuitem"
+                >
+                  <LogIn size={15} className="dropdown-item-icon text-cyan" />
+                  <span>Sign In</span>
+                </button>
+
+                <button
+                  type="button"
+                  className="dropdown-menu-item"
+                  onClick={() => {
+                    setIsDropdownOpen(false);
+                    openLoginModal();
+                  }}
+                  role="menuitem"
+                >
+                  <UserPlus size={15} className="dropdown-item-icon text-blue" />
+                  <span>Create Account</span>
+                </button>
+              </>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
 
       {/* "My Account" Modal Dialog */}
       <AnimatePresence>
-        {showAccountModal && (
+        {showAccountModal && user && (
           <div
             className="account-modal-overlay"
             onClick={() => setShowAccountModal(false)}
@@ -154,8 +182,8 @@ export default function UserProfileMenu() {
                       {displayName.charAt(0).toUpperCase()}
                     </div>
                   )}
-                  <span className="account-verified-check" title="Verified Account">
-                    <CheckCircle size={14} />
+                  <span className="account-verified-check" title="Authenticated account">
+                    ✓
                   </span>
                 </div>
 
@@ -165,16 +193,17 @@ export default function UserProfileMenu() {
 
               <div className="account-details-list">
                 <div className="account-detail-row">
-                  <span className="account-label">Authentication Provider</span>
+                  <span className="account-label">Auth Provider</span>
                   <span className="account-val provider-badge">
-                    <ShieldCheck size={14} className="provider-icon" /> Google
+                    <CheckCircle size={14} />
+                    <span>Google & Firebase</span>
                   </span>
                 </div>
-
                 <div className="account-detail-row">
-                  <span className="account-label">Forecast Access</span>
+                  <span className="account-label">Forecast Tier</span>
                   <span className="account-val status-unlocked">
-                    ✓ Unlocked (Full Access)
+                    <ShieldCheck size={14} />
+                    <span>Unlocked (Full 7-Day & 24h)</span>
                   </span>
                 </div>
               </div>
@@ -188,7 +217,7 @@ export default function UserProfileMenu() {
                     logout();
                   }}
                 >
-                  <LogOut size={15} />
+                  <LogOut size={16} />
                   <span>Sign Out</span>
                 </button>
               </div>
@@ -199,4 +228,3 @@ export default function UserProfileMenu() {
     </div>
   );
 }
-

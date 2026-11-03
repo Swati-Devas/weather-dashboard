@@ -4767,3 +4767,102 @@ a {
     grid-template-columns: 1fr 1fr;
   }
 }
+
+
+/* ==========================================================================
+   Compact Circular User Profile Icon & Guest Dropdown (Right Header)
+   ========================================================================== */
+
+.user-profile-circle-btn {
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 50% !important;
+  background: rgba(17, 24, 39, 0.85) !important;
+  border: 1px solid rgba(148, 163, 184, 0.25) !important;
+  color: var(--text-secondary) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  position: relative !important;
+  overflow: hidden !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35) !important;
+  flex-shrink: 0 !important;
+  padding: 0 !important;
+}
+
+.user-profile-circle-btn:hover {
+  border-color: rgba(34, 211, 238, 0.65) !important;
+  box-shadow: 0 0 16px rgba(34, 211, 238, 0.4) !important;
+  color: #22D3EE !important;
+  transform: translateY(-1px) !important;
+}
+
+.user-profile-circle-btn.is-active {
+  border-color: #168BFF !important;
+  box-shadow: 0 0 18px rgba(22, 139, 255, 0.45) !important;
+  color: #FFFFFF !important;
+}
+
+.user-avatar-circle-img {
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 50% !important;
+  object-fit: cover !important;
+}
+
+.user-avatar-circle-fallback {
+  font-size: 0.85rem !important;
+  font-weight: 700 !important;
+  color: #FFFFFF !important;
+  background: linear-gradient(135deg, #168BFF, #22D3EE) !important;
+  width: 100% !important;
+  height: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 50% !important;
+}
+
+/* Guest Dropdown Header & Action Items */
+.dropdown-guest-header {
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem 0.65rem 0.4rem;
+}
+
+.dropdown-guest-title {
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: #FFFFFF;
+}
+
+.dropdown-guest-sub {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.text-cyan {
+  color: #22D3EE !important;
+}
+
+.text-blue {
+  color: #168BFF !important;
+}
+
+.user-dropdown-menu {
+  position: absolute !important;
+  top: calc(100% + 8px) !important;
+  right: 0 !important;
+  width: 210px !important;
+  background-color: rgba(17, 24, 39, 0.96) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7), 0 0 20px rgba(22, 139, 255, 0.2) !important;
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+  padding: 0.5rem !important;
+  z-index: 1000 !important;
+}
