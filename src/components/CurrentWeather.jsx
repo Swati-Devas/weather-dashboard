@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { MapPin, ArrowUp, ArrowDown, Thermometer, Calendar, Clock } from 'lucide-react';
 import WeatherIcon from './WeatherIcon';
+import RollingNumber from './RollingNumber';
 import { getWeatherInfo } from '../utils/weatherCodes';
 import { formatTemp, formatHeaderDate } from '../utils/formatters';
 
@@ -13,6 +14,12 @@ export default function CurrentWeather({ city, weather, tempUnit = 'C' }) {
 
   const formattedCity = city?.name || 'Selected City';
   const locationDetails = [city?.admin1, city?.country].filter(Boolean).join(', ');
+
+  // Compute numeric temperatures for smooth spring counter
+  const currentTempNum = tempUnit === 'F' ? (current.temperature * 9) / 5 + 32 : current.temperature;
+  const feelsLikeNum = tempUnit === 'F' ? (current.apparentTemperature * 9) / 5 + 32 : current.apparentTemperature;
+  const highTempNum = tempUnit === 'F' ? (current.todayMax * 9) / 5 + 32 : current.todayMax;
+  const lowTempNum = tempUnit === 'F' ? (current.todayMin * 9) / 5 + 32 : current.todayMin;
 
   // Format local time for the selected city timezone
   const localTimeStr = new Intl.DateTimeFormat('en-US', {
@@ -68,18 +75,14 @@ export default function CurrentWeather({ city, weather, tempUnit = 'C' }) {
       </div>
 
       <div className="current-body">
-        {/* Main Temperature Display */}
+        {/* Main Temperature Display with Smooth Rolling Spring Counter */}
         <div className="current-temp-wrapper">
-          <motion.span
-            key={`${current.temperature}-${tempUnit}`}
+          <span
             className="current-temp-number"
-            initial={{ opacity: 0.6, scale: 0.96 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.3 }}
             aria-label={`Temperature: ${formatTemp(current.temperature, tempUnit)}`}
           >
-            {formatTemp(current.temperature, tempUnit)}
-          </motion.span>
+            <RollingNumber value={currentTempNum} />
+          </span>
           <span className="current-temp-unit">°{tempUnit}</span>
         </div>
 
@@ -109,7 +112,9 @@ export default function CurrentWeather({ city, weather, tempUnit = 'C' }) {
             <Thermometer size={16} />
           </div>
           <span className="meta-stat-label">Feels like</span>
-          <span className="meta-stat-value">{formatTemp(current.apparentTemperature, tempUnit)}</span>
+          <span className="meta-stat-value">
+            <RollingNumber value={feelsLikeNum} />°{tempUnit}
+          </span>
         </div>
 
         <div className="high-low-stats" aria-label="Today's temperature range">
@@ -118,7 +123,9 @@ export default function CurrentWeather({ city, weather, tempUnit = 'C' }) {
               <ArrowUp size={15} />
             </div>
             <span className="meta-stat-label">High</span>
-            <span className="meta-stat-value">{formatTemp(current.todayMax, tempUnit)}</span>
+            <span className="meta-stat-value">
+              <RollingNumber value={highTempNum} />°{tempUnit}
+            </span>
           </div>
 
           <div className="meta-stat">
@@ -126,7 +133,9 @@ export default function CurrentWeather({ city, weather, tempUnit = 'C' }) {
               <ArrowDown size={15} />
             </div>
             <span className="meta-stat-label">Low</span>
-            <span className="meta-stat-value">{formatTemp(current.todayMin, tempUnit)}</span>
+            <span className="meta-stat-value">
+              <RollingNumber value={lowTempNum} />°{tempUnit}
+            </span>
           </div>
         </div>
       </div>

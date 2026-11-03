@@ -458,6 +458,7 @@ a {
 }
 
 .card {
+  position: relative;
   background-color: var(--bg-card);
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
@@ -465,12 +466,37 @@ a {
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
   padding: 1.25rem;
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: radial-gradient(
+    380px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    rgba(56, 189, 248, 0.28),
+    transparent 65%
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.card:hover::before {
+  opacity: 1;
 }
 
 .card:hover {
-  box-shadow: var(--shadow-md);
-  border-color: rgba(56, 189, 248, 0.22);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md), 0 0 25px rgba(56, 189, 248, 0.14);
+  border-color: rgba(56, 189, 248, 0.28);
 }
 
 @media (min-width: 768px) {
@@ -2566,9 +2592,14 @@ a {
 }
 
 @keyframes marker-radar {
-  0% { transform: translate(-50%, -50%) scale(0.35); opacity: 0.9; }
-  50% { opacity: 0.5; }
-  100% { transform: translate(-50%, -50%) scale(1.7); opacity: 0; }
+  0% { transform: translate(-50%, -50%) scale(0.3); opacity: 0.95; }
+  50% { opacity: 0.45; }
+  100% { transform: translate(-50%, -50%) scale(2.2); opacity: 0; }
+}
+
+@keyframes sonar-breathe {
+  0% { transform: translate(-50%, -50%) scale(0.88); opacity: 0.45; }
+  100% { transform: translate(-50%, -50%) scale(1.15); opacity: 0.9; }
 }
 
 /* User GPS Marker */

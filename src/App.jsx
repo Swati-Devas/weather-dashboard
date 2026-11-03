@@ -117,11 +117,29 @@ function WeatherDashboardApp() {
     }
   }, []);
 
-  // Initial fetch on mount
+  // Initial fetch on mount & Apple Card Spotlight tracking
   useEffect(() => {
     loadWeatherForCity(DEFAULT_CITY);
 
+    const handlePointerMove = (e) => {
+      const cards = document.querySelectorAll('.card');
+      cards.forEach((card) => {
+        const rect = card.getBoundingClientRect();
+        if (
+          e.clientX >= rect.left - 60 &&
+          e.clientX <= rect.right + 60 &&
+          e.clientY >= rect.top - 60 &&
+          e.clientY <= rect.bottom + 60
+        ) {
+          card.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
+          card.style.setProperty('--mouse-y', `${e.clientY - rect.top}px`);
+        }
+      });
+    };
+    window.addEventListener('pointermove', handlePointerMove, { passive: true });
+
     return () => {
+      window.removeEventListener('pointermove', handlePointerMove);
       if (weatherAbortRef.current) weatherAbortRef.current.abort();
       if (searchAbortRef.current) searchAbortRef.current.abort();
       if (mapClickAbortRef.current) mapClickAbortRef.current.abort();
