@@ -227,6 +227,12 @@ function MapBridge({ onMapReady }) {
   const map = useMap();
   useEffect(() => {
     if (onMapReady) onMapReady(map);
+    const timer = setTimeout(() => {
+      try {
+        map.invalidateSize();
+      } catch (e) {}
+    }, 250);
+    return () => clearTimeout(timer);
   }, [map, onMapReady]);
   return null;
 }

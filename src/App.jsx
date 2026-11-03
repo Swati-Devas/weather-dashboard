@@ -156,6 +156,7 @@ function WeatherDashboardApp() {
     loadWeatherForCity(DEFAULT_CITY);
 
     const handlePointerMove = (e) => {
+      if (e.pointerType === 'touch') return;
       const cards = document.querySelectorAll('.card');
       cards.forEach((card) => {
         const rect = card.getBoundingClientRect();
