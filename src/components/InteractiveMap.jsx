@@ -51,17 +51,6 @@ export const MAP_LAYERS = {
     name: 'SkyPulse Dark Navy',
     tag: 'Premium Theme',
     attribution:
-      '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions" target="_blank" rel="noopener noreferrer">CARTO</a>',
-    url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-    subdomains: 'abcd',
-    maxZoom: 20,
-    maxNativeZoom: 20,
-  },
-  standard: {
-    id: 'standard',
-    name: 'OpenStreetMap',
-    tag: 'Classic Standard',
-    attribution:
       '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors',
     url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
     maxZoom: 19,
@@ -691,9 +680,9 @@ export default function InteractiveMap({
             key={`${currentLayer.id}-base`}
             attribution={currentLayer.attribution}
             url={currentLayer.url}
-            subdomains={currentLayer.subdomains || 'abc'}
+            className={currentLayer.id === 'dark' ? 'leaflet-tile-dark' : ''}
             maxZoom={currentLayer.maxZoom || 19}
-            maxNativeZoom={currentLayer.maxNativeZoom || 18}
+            maxNativeZoom={currentLayer.maxNativeZoom || 19}
           />
 
           {/* Reference Geographical Labels Overlay for Dark Canvas */}

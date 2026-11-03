@@ -5597,3 +5597,10 @@ html, body {
     font-size: 3.4rem !important;
   }
 }
+
+/* 100% Free Dark Inversion Filter for Standard OpenStreetMap Tiles (No API Key Required) */
+.leaflet-tile-dark,
+.leaflet-tile-dark img.leaflet-tile,
+img.leaflet-tile.leaflet-tile-dark {
+  filter: brightness(0.68) invert(1) contrast(1.28) hue-rotate(205deg) saturate(0.85) !important;
+}
