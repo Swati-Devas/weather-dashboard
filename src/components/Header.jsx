@@ -1,8 +1,16 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'motion/react';
 import { CloudSun, Clock } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
 import UserProfileMenu from './UserProfileMenu';
 import { formatHeaderDate } from '../utils/formatters';
+
+const NAV_TABS = [
+  { id: 'dashboard', label: 'Dashboard', targetId: 'main-content' },
+  { id: 'maps', label: 'Maps', targetId: 'interactive-map-section' },
+  { id: 'radar', label: 'Radar', targetId: 'interactive-map-section' },
+  { id: 'forecasts', label: 'Forecasts', targetSelector: '.weekly-forecast-card, .locked-forecast-wrapper' },
+];
 
 export default function Header({ theme, onToggleTheme, tempUnit, onToggleUnit }) {
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
@@ -22,69 +30,64 @@ export default function Header({ theme, onToggleTheme, tempUnit, onToggleUnit })
     hour12: true,
   });
 
+  const handleTabClick = (tab) => {
+    setActiveTab(tab.id);
+    if (tab.targetId) {
+      const el = document.getElementById(tab.targetId);
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    } else if (tab.targetSelector) {
+      const el = document.querySelector(tab.targetSelector);
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <header className="app-header">
-      <div className="header-brand">
-        <div className="brand-logo" aria-hidden="true">
-          <CloudSun size={28} className="brand-icon" />
-        </div>
-        <div className="brand-text">
-          <h1 className="brand-title">SkyPulse</h1>
-          <span className="brand-subtitle">Live Weather Dashboard</span>
+      {/* 1. Left Section: Logo & Branding with gentle glowing pulse */}
+      <div className="header-left">
+        <div className="header-brand">
+          <div className="brand-logo" aria-hidden="true">
+            <CloudSun size={24} className="brand-icon" />
+            <div className="logo-pulse-ring" />
+          </div>
+          <div className="brand-text">
+            <h1 className="brand-title">SkyPulse</h1>
+            <span className="brand-subtitle">LIVE WEATHER DASHBOARD</span>
+          </div>
         </div>
       </div>
 
-      {/* Modern Center Navigation Tabs with Electric Blue Active Glow */}
-      <nav className="header-nav-tabs" aria-label="Main Navigation">
-        <button
-          type="button"
-          className={`header-nav-tab ${activeTab === 'dashboard' ? 'active' : ''}`}
-          onClick={() => {
-            setActiveTab('dashboard');
-            const el = document.getElementById('main-content');
-            if (el) el.scrollIntoView({ behavior: 'smooth' });
-          }}
-        >
-          Dashboard
-        </button>
-        <button
-          type="button"
-          className={`header-nav-tab ${activeTab === 'maps' ? 'active' : ''}`}
-          onClick={() => {
-            setActiveTab('maps');
-            const el = document.getElementById('interactive-map-section');
-            if (el) el.scrollIntoView({ behavior: 'smooth' });
-          }}
-        >
-          Maps
-        </button>
-        <button
-          type="button"
-          className={`header-nav-tab ${activeTab === 'radar' ? 'active' : ''}`}
-          onClick={() => {
-            setActiveTab('radar');
-            const el = document.getElementById('interactive-map-section');
-            if (el) el.scrollIntoView({ behavior: 'smooth' });
-          }}
-        >
-          Radar
-        </button>
-        <button
-          type="button"
-          className={`header-nav-tab ${activeTab === 'forecasts' ? 'active' : ''}`}
-          onClick={() => {
-            setActiveTab('forecasts');
-            const el = document.querySelector('.weekly-forecast-card') || document.querySelector('.locked-forecast-wrapper');
-            if (el) el.scrollIntoView({ behavior: 'smooth' });
-          }}
-        >
-          Forecasts
-        </button>
-      </nav>
+      {/* 2. Center Section: Navigation with smooth animated active-tab indicator */}
+      <div className="header-center">
+        <nav className="header-nav-tabs" aria-label="Main Navigation">
+          {NAV_TABS.map((tab) => {
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                className={`header-nav-tab ${isActive ? 'active' : ''}`}
+                onClick={() => handleTabClick(tab)}
+              >
+                {isActive && (
+                  <motion.div
+                    layoutId="activeNavPill"
+                    className="nav-active-pill-bg"
+                    transition={{ type: 'spring', stiffness: 400, damping: 32 }}
+                  />
+                )}
+                <span className="nav-tab-label">{tab.label}</span>
+              </button>
+            );
+          })}
+        </nav>
+      </div>
 
-      <div className="header-meta">
+      {/* 3. Right Section: Date & Time, Unit Toggle, Dark Mode, Profile/Sign In */}
+      <div className="header-right">
+        {/* Date & Time Pill */}
         <div className="datetime-pill" title="Local System Time">
-          <Clock size={15} className="datetime-icon" aria-hidden="true" />
+          <Clock size={14} className="datetime-icon" aria-hidden="true" />
           <span className="datetime-text">
             <span className="date-part">{formatHeaderDate(currentDateTime)}</span>
             <span className="divider">•</span>

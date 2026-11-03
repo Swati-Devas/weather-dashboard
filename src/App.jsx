@@ -25,6 +25,26 @@ const DEFAULT_CITY = {
   timezone: 'Asia/Kolkata',
 };
 
+const dashboardStaggerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.05,
+    },
+  },
+};
+
+const cardStaggerVariants = {
+  hidden: { opacity: 0, y: 22 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] },
+  },
+};
+
 function WeatherDashboardApp() {
   const { user } = useAuth();
 
@@ -310,26 +330,30 @@ function WeatherDashboardApp() {
           {/* Initial Loading Skeleton */}
           {isLoadingWeather && !weatherData && <LoadingState />}
 
-          {/* Live Weather Dashboard Content */}
+          {/* Live Weather Dashboard Content with Staggered Entrance */}
           {weatherData && (
             <motion.div
               className={`dashboard-content ${isLoadingWeather ? 'updating' : ''}`}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.35 }}
+              variants={dashboardStaggerVariants}
+              initial="hidden"
+              animate="visible"
             >
               {/* Public Feature: Current Weather Hero Card */}
-              <CurrentWeather
-                city={selectedCity}
-                weather={weatherData}
-                tempUnit={tempUnit}
-              />
+              <motion.div variants={cardStaggerVariants}>
+                <CurrentWeather
+                  city={selectedCity}
+                  weather={weatherData}
+                  tempUnit={tempUnit}
+                />
+              </motion.div>
 
               {/* Public Feature: Real-time Weather Metrics (Humidity, Wind, UV, etc.) */}
-              <WeatherMetrics
-                weather={weatherData}
-                tempUnit={tempUnit}
-              />
+              <motion.div variants={cardStaggerVariants}>
+                <WeatherMetrics
+                  weather={weatherData}
+                  tempUnit={tempUnit}
+                />
+              </motion.div>
 
               {/* Protected Features: Upcoming Forecasts & Charts */}
               {user ? (
@@ -337,9 +361,7 @@ function WeatherDashboardApp() {
                 <motion.div
                   key="unlocked-forecasts"
                   className="unlocked-forecasts-wrap"
-                  initial={{ opacity: 0, y: 14 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4 }}
+                  variants={cardStaggerVariants}
                 >
                   {/* Visual Temperature Trends & Forecast Chart */}
                   <TemperatureChart
@@ -366,7 +388,9 @@ function WeatherDashboardApp() {
                 </motion.div>
               ) : (
                 /* Logged-Out Visitor: Locked Forecast Gate Card */
-                <LockedForecastCard key="locked-forecast-gate" />
+                <motion.div variants={cardStaggerVariants}>
+                  <LockedForecastCard key="locked-forecast-gate" />
+                </motion.div>
               )}
             </motion.div>
           )}
