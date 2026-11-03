@@ -32,6 +32,7 @@ import {
   Sparkles,
   Search,
   Globe,
+  SlidersHorizontal,
 } from 'lucide-react';
 import WeatherIcon from './WeatherIcon';
 import { reverseGeocode, fetchWeatherData, searchCities } from '../services/weatherApi';
