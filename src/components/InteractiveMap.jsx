@@ -261,10 +261,12 @@ export default function InteractiveMap({
 
   // Map layer state persisted in localStorage (defaults to SkyPulse Dark Theme)
   const [mapLayer, setMapLayer] = useState(() => {
-    const saved = localStorage.getItem('skypulse_map_layer');
-    if (saved && (saved === 'dark' || saved === 'standard' || saved === 'satellite')) {
-      return saved;
-    }
+    try {
+      const saved = localStorage.getItem('skypulse_map_layer');
+      if (saved && (saved === 'dark' || saved === 'standard' || saved === 'satellite')) {
+        return saved;
+      }
+    } catch (e) {}
     return 'dark';
   });
   const [isLayerMenuOpen, setIsLayerMenuOpen] = useState(false);
@@ -379,7 +381,7 @@ export default function InteractiveMap({
 
   // Save selected map layer to localStorage
   useEffect(() => {
-    localStorage.setItem('skypulse_map_layer', mapLayer);
+    try { localStorage.setItem('skypulse_map_layer', mapLayer); } catch (e) {}
   }, [mapLayer]);
 
   // Fetch RainViewer radar timestamp when radar overlay is enabled

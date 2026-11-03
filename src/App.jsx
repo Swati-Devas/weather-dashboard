@@ -50,16 +50,26 @@ function WeatherDashboardApp() {
 
   // Theme state: Persisted in localStorage, respects system theme
   const [theme, setTheme] = useState(() => {
-    const saved = localStorage.getItem('weather_theme');
-    if (saved) return saved;
-    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
-      ? 'dark'
-      : 'light';
+    try {
+      const saved = localStorage.getItem('weather_theme');
+      if (saved) return saved;
+    } catch (e) {}
+    try {
+      return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        ? 'dark'
+        : 'light';
+    } catch (e) {
+      return 'dark';
+    }
   });
 
   // Temperature unit: 'C' or 'F'
   const [tempUnit, setTempUnit] = useState(() => {
-    return localStorage.getItem('weather_temp_unit') || 'C';
+    try {
+      return localStorage.getItem('weather_temp_unit') || 'C';
+    } catch (e) {
+      return 'C';
+    }
   });
 
   // Active City & Weather Data
@@ -85,13 +95,17 @@ function WeatherDashboardApp() {
 
   // Apply theme to <html> tag and persist
   useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem('weather_theme', theme);
+    try {
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('weather_theme', theme);
+    } catch (e) {}
   }, [theme]);
 
   // Persist temperature unit
   useEffect(() => {
-    localStorage.setItem('weather_temp_unit', tempUnit);
+    try {
+      localStorage.setItem('weather_temp_unit', tempUnit);
+    } catch (e) {}
   }, [tempUnit]);
 
   const toggleTheme = () => {
