@@ -27,7 +27,7 @@ export default function WeatherMetrics({ weather, tempUnit = 'C' }) {
 
   // 1. Humidity & Circular Progress calculation
   const humidity = current.relativeHumidity ?? 0;
-  const radius = 22;
+  const radius = 18;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (humidity / 100) * circumference;
 
@@ -89,25 +89,25 @@ export default function WeatherMetrics({ weather, tempUnit = 'C' }) {
             </div>
 
             <div className="circular-progress-wrap" aria-hidden="true">
-              <svg width="60" height="60" className="progress-ring">
+              <svg width="44" height="44" viewBox="0 0 44 44" className="progress-ring">
                 <circle
                   className="progress-ring-track"
-                  strokeWidth="5"
+                  strokeWidth="4"
                   fill="transparent"
                   r={radius}
-                  cx="30"
-                  cy="30"
+                  cx="22"
+                  cy="22"
                 />
                 <circle
                   className="progress-ring-fill"
-                  strokeWidth="5"
+                  strokeWidth="4"
                   strokeDasharray={circumference}
                   strokeDashoffset={strokeDashoffset}
                   strokeLinecap="round"
                   fill="transparent"
                   r={radius}
-                  cx="30"
-                  cy="30"
+                  cx="22"
+                  cy="22"
                 />
               </svg>
             </div>
