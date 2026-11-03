@@ -3964,21 +3964,15 @@ a {
 
 /* Header Navigation Tabs */
 .header-nav-tabs {
-  display: none;
+  display: flex !important;
   align-items: center;
-  background: rgba(17, 24, 39, 0.65);
+  background: rgba(8, 13, 24, 0.85);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: var(--radius-full);
   padding: 3px;
   gap: 2px;
-}
-
-@media (min-width: 900px) {
-  .header-nav-tabs {
-    display: flex;
-  }
 }
 
 .header-nav-tab {
@@ -4865,4 +4859,292 @@ a {
   -webkit-backdrop-filter: blur(24px) !important;
   padding: 0.5rem !important;
   z-index: 1000 !important;
+}
+
+
+/* ==========================================================================
+   Header Alignment & Perfect Containment for ThemeToggle and UserProfileMenu
+   ========================================================================== */
+
+.app-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 1rem !important;
+  padding: 0.75rem 1.25rem !important;
+  background: rgba(17, 24, 39, 0.75) !important;
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: var(--radius-lg) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45) !important;
+  position: relative !important;
+  z-index: 50 !important;
+  box-sizing: border-box !important;
+  overflow: visible !important;
+}
+
+.header-left {
+  display: flex !important;
+  align-items: center !important;
+  flex-shrink: 0 !important;
+}
+
+.header-center {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex: 1 !important;
+}
+
+.header-right {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.65rem !important;
+  flex-shrink: 0 !important;
+  flex-wrap: nowrap !important;
+  justify-content: flex-end !important;
+}
+
+.header-controls {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.65rem !important;
+  flex-shrink: 0 !important;
+  flex-wrap: nowrap !important;
+}
+
+.theme-toggle-btn {
+  height: 36px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.45rem !important;
+  padding: 0 0.85rem !important;
+  background-color: rgba(17, 24, 39, 0.85) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: var(--radius-full) !important;
+  font-size: 0.82rem !important;
+  font-weight: 600 !important;
+  color: var(--text-primary) !important;
+  cursor: pointer !important;
+  box-sizing: border-box !important;
+  margin: 0 !important;
+  vertical-align: middle !important;
+}
+
+.user-menu-container {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 36px !important;
+  position: relative !important;
+  flex-shrink: 0 !important;
+  margin: 0 !important;
+  vertical-align: middle !important;
+}
+
+.user-profile-circle-btn {
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 50% !important;
+  background: rgba(17, 24, 39, 0.85) !important;
+  border: 1px solid rgba(148, 163, 184, 0.25) !important;
+  color: var(--text-secondary) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  position: relative !important;
+  overflow: hidden !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35) !important;
+  flex-shrink: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  vertical-align: middle !important;
+}
+
+.user-profile-circle-btn:hover {
+  border-color: rgba(34, 211, 238, 0.65) !important;
+  box-shadow: 0 0 16px rgba(34, 211, 238, 0.4) !important;
+  color: #22D3EE !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Compact date/time pill on smaller screens to prevent any header overflow */
+@media (max-width: 1200px) {
+  .datetime-pill .date-part,
+  .datetime-pill .divider {
+    display: none !important;
+  }
+}
+
+@media (max-width: 980px) {
+  .app-header {
+    flex-wrap: wrap !important;
+  }
+  .header-center {
+    order: 3 !important;
+    width: 100% !important;
+    margin-top: 0.5rem !important;
+  }
+}
+
+/* ==========================================================================
+   Unlock Forecast Card Layout: Proper Spacing, Height & Never Cut Off
+   ========================================================================== */
+
+.locked-forecast-wrapper {
+  position: relative !important;
+  min-height: 480px !important;
+  padding: 3.5rem 2rem !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: rgba(17, 24, 39, 0.75) !important;
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+  border: 1px solid rgba(22, 139, 255, 0.22) !important;
+  border-radius: var(--radius-lg) !important;
+  box-shadow: 0 24px 50px -12px rgba(0, 0, 0, 0.75), inset 0 1px 1px rgba(255, 255, 255, 0.1) !important;
+  overflow: hidden !important;
+  margin-top: 1rem !important;
+  box-sizing: border-box !important;
+}
+
+.locked-forecast-wrapper:hover {
+  border-color: rgba(22, 139, 255, 0.38) !important;
+  box-shadow: 0 28px 60px -12px rgba(0, 0, 0, 0.8), 0 0 25px rgba(22, 139, 255, 0.18) !important;
+}
+
+/* Decorative blurred backdrop sits strictly in the background */
+.locked-mockup-backdrop {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 1.5rem !important;
+  padding: 2.5rem !important;
+  pointer-events: none !important;
+  user-select: none !important;
+  filter: blur(12px) !important;
+  opacity: 0.18 !important;
+  z-index: 1 !important;
+}
+
+/* Centered Gate Content */
+.locked-gate-content {
+  position: relative !important;
+  z-index: 2 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  text-align: center !important;
+  gap: 1.35rem !important;
+  max-width: 540px !important;
+  width: 100% !important;
+  margin: 0 auto !important;
+}
+
+.locked-badge-glow {
+  position: relative !important;
+}
+
+.locked-badge-inner {
+  width: 68px !important;
+  height: 68px !important;
+  border-radius: 50% !important;
+  background: radial-gradient(circle, rgba(22, 139, 255, 0.32), rgba(34, 211, 238, 0.15)) !important;
+  border: 1.5px solid rgba(22, 139, 255, 0.55) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: #22D3EE !important;
+  box-shadow: 0 0 24px rgba(22, 139, 255, 0.45) !important;
+}
+
+.locked-text-group {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 0.65rem !important;
+}
+
+.locked-pill-tag {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.4rem !important;
+  padding: 0.3rem 0.95rem !important;
+  border-radius: var(--radius-full) !important;
+  background: rgba(22, 139, 255, 0.16) !important;
+  border: 1px solid rgba(22, 139, 255, 0.4) !important;
+  color: #22D3EE !important;
+  font-size: 0.74rem !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.06em !important;
+}
+
+.locked-heading {
+  font-size: 1.6rem !important;
+  font-weight: 800 !important;
+  color: #FFFFFF !important;
+  letter-spacing: -0.02em !important;
+}
+
+.locked-description {
+  font-size: 0.92rem !important;
+  color: var(--text-secondary) !important;
+  line-height: 1.6 !important;
+  max-width: 480px !important;
+}
+
+.locked-features-pills {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+  gap: 0.65rem !important;
+}
+
+.locked-pill-item {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.45rem !important;
+  padding: 0.4rem 0.95rem !important;
+  border-radius: var(--radius-full) !important;
+  background-color: rgba(13, 20, 36, 0.8) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  font-size: 0.82rem !important;
+  font-weight: 600 !important;
+  color: #E2E8F0 !important;
+}
+
+/* Unlock Forecast Button: Fully visible, generous padding, never cut off */
+.unlock-forecast-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.6rem !important;
+  height: 50px !important;
+  min-height: 50px !important;
+  padding: 0 2.5rem !important;
+  border-radius: var(--radius-full) !important;
+  background: linear-gradient(135deg, #168BFF 0%, #0070E0 100%) !important;
+  color: #FFFFFF !important;
+  font-size: 0.96rem !important;
+  font-weight: 700 !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  box-shadow: 0 6px 22px rgba(22, 139, 255, 0.5) !important;
+  cursor: pointer !important;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  margin-top: 0.5rem !important;
+}
+
+.unlock-forecast-btn:hover {
+  background: linear-gradient(135deg, #22D3EE 0%, #168BFF 100%) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 10px 30px rgba(22, 139, 255, 0.7) !important;
 }
